@@ -487,7 +487,7 @@ def call(Map config = [:]) {
 
             //sh "type ./deployment.yaml"
             //sh "type ./service.yaml"
-            sh "type /configmap.yaml"
+            //sh "type ./configmap.yaml"
 
             // Simpan objek gabungan ke dalam file baru
             writeYaml(datas: [deployment, service, configmap], file: "deploymentservice.yaml")
