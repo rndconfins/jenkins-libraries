@@ -7,14 +7,14 @@
         baseHref : base href of FE project (default: /)
         nginxconfig : nginx config id to override default nginx config (default: nginx-fe)
         useNodeTool : use nodejs from environment tool
-        //skipBuildEvent: skip dotnet build event (default: false)
+        skipBuildEvent: skip dotnet build event (default: false)
 */
 def call(Map config = [:]) {
     if (isUnix()) {
         if (config.executableName) {
-            //def optionalParams = config.skipBuildEvent ? "/p:PreBuildEvent=" : ""
-            sh "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 $DOTNET/dotnet build -c Release"
-            sh "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 $DOTNET/dotnet publish -c Release --output ./publish/release"
+            def optionalParams = config.skipBuildEvent ? "/p:PreBuildEvent=" : ""
+            sh "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 $DOTNET/dotnet build -c Release ${optionalParams}"
+            sh "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 $DOTNET/dotnet publish -c Release --output ./publish/release ${optionalParams}"
             configFileProvider([configFile(fileId: config.dockerfile ? config.dockerfile: 'dockerfile-be', targetLocation: 'publish/release/Dockerfile', variable: 'dockerfile'), configFile(fileId: 'swagger-xml', targetLocation: "publish/release/${config.executableName}.xml", variable: 'swagger')]) {
                 sh "chmod 0777 publish/release/Dockerfile"
                 sh "echo ENTRYPOINT [\"\\\"\"dotnet\"\\\"\", \"\\\"\"${config.executableName}.dll\"\\\"\"] >> publish/release/Dockerfile"
@@ -36,9 +36,9 @@ def call(Map config = [:]) {
         }
     } else {
         if (config.executableName) {
-            //def optionalParams = config.skipBuildEvent ? "/p:PreBuildEvent= /p:PostBuildEvent=" : "" 
-            bat "dotnet build -c Release"
-            bat "dotnet publish -c Release --output ./publish/release"
+            def optionalParams = config.skipBuildEvent ? "/p:PreBuildEvent= /p:PostBuildEvent=" : "" 
+            bat "dotnet build -c Release ${optionalParams}"
+            bat "dotnet publish -c Release --output ./publish/release ${optionalParams}"
             configFileProvider([configFile(fileId: config.dockerfile ? config.dockerfile: 'dockerfile-be', targetLocation: 'publish/release/Dockerfile', variable: 'dockerfile'), configFile(fileId: 'swagger-xml', targetLocation: "publish/release/${config.executableName}.xml", variable: 'swagger')]) {
                 bat "echo ENTRYPOINT [\"dotnet\", \"${config.executableName}.dll\"] >> publish\\release\\Dockerfile"
             }
