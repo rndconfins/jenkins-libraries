@@ -204,14 +204,15 @@ def call(Map config = [:]) {
 						def DBString = itemsSetting.value
 						def keyValuePairs = parseKeyValuePairs(DBString)
 												
-						keyValuePairs['Data Source'] = postgresConfig."Server"
-						keyValuePairs['user id'] = postgresConfig."User ID"
+						keyValuePairs['Host'] = postgresConfig."Server"
+						keyValuePairs['User ID'] = postgresConfig."User ID"
 						keyValuePairs['Password'] = postgresConfig."Password"
+						keyValuePairs['Port'] = postgresConfig."Port"
 
 						if (itemsSetting.key.contains("TableAdapters")) {
-							keyValuePairs['Initial Catalog'] = postgresConfig."DatabaseName"."$targetField"."$itemsSetting.key"
+							keyValuePairs['Database'] = postgresConfig."DatabaseName"."$targetField"."$itemsSetting.key"
 						} else {
-							keyValuePairs['Initial Catalog'] = postgresConfig."DatabaseName"."$targetField"
+							keyValuePairs['Database'] = postgresConfig."DatabaseName"."$targetField"
 						}
 
 						def data2 = keyValuePairs.collect { key, value -> "$key=$value" }.join(';')
