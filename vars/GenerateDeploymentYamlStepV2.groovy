@@ -204,7 +204,7 @@ def call(Map config = [:]) {
 						def DBString = itemsSetting.value
 						def keyValuePairs = parseKeyValuePairs(DBString)
 												
-						keyValuePairs['Host'] = postgresConfig."Server"
+						keyValuePairs['Host'] = postgresConfig."Host"
 						keyValuePairs['User ID'] = postgresConfig."User ID"
 						keyValuePairs['Password'] = postgresConfig."Password"
 						keyValuePairs['Port'] = postgresConfig."Port"
