@@ -15,7 +15,7 @@ def call(Map config = [:]) {
         if (!isUnix())
         {
             // Menentukan pola file yang ingin dikecualikan
-            def excludedFiles = ['GeneralConfig.json', 'GeneralConfig.json']
+            def excludedFiles = ['GeneralConfig.json', 'GeneralConfig_FrontEnd.json']
             
             // Membersihkan workspace kecuali file tertentu
             bat 'rmdir /s /q *'
@@ -24,7 +24,7 @@ def call(Map config = [:]) {
         else
         {
             // Menentukan pola file yang ingin dikecualikan
-            def excludedFiles = ['GeneralConfig.json', 'GeneralConfig.json']
+            def excludedFiles = ['GeneralConfig.json', 'GeneralConfig_FrontEnd.json']
     
             // Menggunakan perintah shell untuk menghapus file yang dikecualikan
             sh "rm -rf !( ${excludedFiles.join('|')} )"
