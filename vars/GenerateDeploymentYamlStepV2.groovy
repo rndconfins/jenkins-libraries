@@ -28,10 +28,16 @@ import groovy.json.JsonOutput
 
 def call(Map config = [:]) {
     if (isUnix()) {
-	if(env != null)
+	if(env != null and env != "")
 	{
-		sh "cp ../${config.env}/GeneralConfig.json ./"
-		sh "cp ../${config.env}/GeneralConfig_FrontEnd.json ./"
+		if (config.type != 'fe')
+		{
+			sh "cp ../${config.env}/GeneralConfig.json ./"
+		}
+		else
+		{
+			sh "cp ../${config.env}/GeneralConfig_FrontEnd.json ./"
+		}		
 	}
 	else
 	{
