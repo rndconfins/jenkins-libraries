@@ -11,14 +11,27 @@
 */
 def call(Map config = [:]) {
     if (config.cleanWorkspace) {
-        cleanWs(deleteDirs: true, disableDeferredWipeout: true) {
+        //cleanWs() 
+        if (!isUnix())
+        {
+            // Menentukan pola file yang ingin dikecualikan
+            def excludedFiles = ['GeneralConfig.json', 'GeneralConfig.json']
+            
+            // Membersihkan workspace kecuali file tertentu
+            bat 'rmdir /s /q *'
+            bat "for %%I in (${excludedFiles.join(' ')}) do del /q %%I"
+        }
+        else
+        {
             // Menentukan pola file yang ingin dikecualikan
             def excludedFiles = ['GeneralConfig.json', 'GeneralConfig.json']
     
             // Menggunakan perintah shell untuk menghapus file yang dikecualikan
-            sh "find . -type f -not -name ${excludedFiles.collect { "'${it}'" }.join(' -and -not -name ')} -delete"
+            sh "rm -rf !( ${excludedFiles.join('|')} )"
+
         }
     }
+    
     withCredentials([usernamePassword(credentialsId: config.credentialsId, passwordVariable: 'PASS', usernameVariable: 'USER')]) {
         if (config.branchName) {
             checkout([$class: 'GitSCM', branches: [[name: config.branchName]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: config.credentialsId, url: config.url]]])
