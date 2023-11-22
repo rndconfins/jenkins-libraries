@@ -18,6 +18,7 @@
         
         # Configmap
         configPath : Config file name to store in configmap
+	env : Config enviroment project
         
 */
 
@@ -27,7 +28,21 @@ import groovy.json.JsonOutput
 
 def call(Map config = [:]) {
     if (isUnix()) {
-            configFileProvider([configFile(fileId: 'kube-deployment-yaml', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-service-yaml', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap'), configFile(fileId: 'GeneralConfig', targetLocation: './GeneralConfig.json', variable: 'GeneralConfig'), configFile(fileId: 'GeneralConfig_FrontEnd', targetLocation: './GeneralConfig_FrontEnd.json', variable: 'GeneralConfig_FrontEnd')]) {
+	if(env != null)
+	{
+		sh "cp ../${config.env}/GeneralConfig.json ./"
+		sh "cp ../${config.env}/GeneralConfig_FrontEnd.json ./"
+	}
+	else
+	{
+		configFileProvider([configFile(fileId: 'GeneralConfig', targetLocation: './GeneralConfig.json', variable: 'GeneralConfig'), configFile(fileId: 'GeneralConfig_FrontEnd', targetLocation: './GeneralConfig_FrontEnd.json', variable: 'GeneralConfig_FrontEnd')]) 
+		{
+			sh "copy file Config"
+		}
+	}
+		
+        configFileProvider([configFile(fileId: 'kube-deployment-yaml', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-service-yaml', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap')]) 
+	{
             def matchers = ~ /.*-(frontend|fe)/
             config.type = config.type ? config.type: (matchers.matcher(config.deploymentName).matches() ? "fe": "be")
 
