@@ -28,7 +28,7 @@ import groovy.json.JsonOutput
 
 def call(Map config = [:]) {
     if (isUnix()) {
-	if(env != null and env != "")
+	if(env != null && env != "")
 	{
 		if (config.type != 'fe')
 		{
