@@ -27,7 +27,7 @@ import groovy.json.JsonOutput
 
 def call(Map config = [:]) {
     if (isUnix()) {
-            configFileProvider([configFile(fileId: 'kube-deployment-yaml', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-service-yaml', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap'), configFile(fileId: 'GeneralConfig', targetLocation: '../../../SIT_CSUL/GeneralConfig.json', variable: 'GeneralConfig'), configFile(fileId: 'GeneralConfig_FrontEnd', targetLocation: '../../../SIT_CSUL/GeneralConfig_FrontEnd.json', variable: 'GeneralConfig_FrontEnd')]) {
+            configFileProvider([configFile(fileId: 'kube-deployment-yaml', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-service-yaml', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap'), configFile(fileId: 'GeneralConfig', targetLocation: './GeneralConfig.json', variable: 'GeneralConfig'), configFile(fileId: 'GeneralConfig_FrontEnd', targetLocation: './GeneralConfig_FrontEnd.json', variable: 'GeneralConfig_FrontEnd')]) {
             def matchers = ~ /.*-(frontend|fe)/
             config.type = config.type ? config.type: (matchers.matcher(config.deploymentName).matches() ? "fe": "be")
 
