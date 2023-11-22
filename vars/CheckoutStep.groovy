@@ -26,9 +26,9 @@ def call(Map config = [:]) {
             // Menentukan pola file yang ingin dikecualikan
             def excludedFiles = ['GeneralConfig.json', 'GeneralConfig_FrontEnd.json']
     
-            // Menggunakan perintah shell untuk menghapus file yang dikecualikan
-            sh "rm -rf !( ${excludedFiles.join('|')} )"
-
+            // Membersihkan workspace kecuali file tertentu
+                sh "find . -type f \\( ! -name ${excludedFiles.collect { "-name '${it}'" }.join(' -a ') } \\) -exec rm -f {} \\;"
+                sh "find . -type d -empty -delete"
         }
     }
     
