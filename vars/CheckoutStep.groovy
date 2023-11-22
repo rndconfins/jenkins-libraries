@@ -11,7 +11,13 @@
 */
 def call(Map config = [:]) {
     if (config.cleanWorkspace) {
-        cleanWs()
+        cleanWs(deleteDirs: true, disableDeferredWipeout: true) {
+            // Menentukan pola file yang ingin dikecualikan
+            def excludedFiles = ['GeneralConfig.json', 'GeneralConfig.json']
+    
+            // Menggunakan perintah shell untuk menghapus file yang dikecualikan
+            sh "find . -type f -not -name ${excludedFiles.collect { "'${it}'" }.join(' -and -not -name ')} -delete"
+        }
     }
     withCredentials([usernamePassword(credentialsId: config.credentialsId, passwordVariable: 'PASS', usernameVariable: 'USER')]) {
         if (config.branchName) {
