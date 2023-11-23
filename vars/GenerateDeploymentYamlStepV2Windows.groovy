@@ -37,6 +37,8 @@ def call(Map config = [:]) {
                 writeYaml(data: namespace, file: "namespace.yaml")
             }
 
+	    config.imageName = config.imageName.replaceAll("//", "/").replaceFirst(":/+", "://")
+
             // Deployment
             def deployment = readYaml(file: 'deployment.yaml')
             deployment.metadata.name = config.deploymentName
@@ -117,6 +119,8 @@ def call(Map config = [:]) {
             if (!fileExists('namespace.yaml')) {
                 writeYaml(data: namespace, file: "namespace.yaml")
             }
+
+	    config.imageName = config.imageName.replaceAll("//", "/").replaceFirst(":/+", "://")
 
             // Deployment
             def deployment = readYaml(file: 'deployment.yaml')
