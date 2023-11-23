@@ -58,7 +58,7 @@ def call(Map config = [:]) {
                 writeYaml(data: namespace, file: "namespace.yaml")
             }
 
-	    config.imageName = config.imageName.replaceAll("//", "/").replaceFirst(":/+", "://")
+	    config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
 
             // Deployment
             def deployment = readYaml(file: 'deployment.yaml')
@@ -530,7 +530,7 @@ def call(Map config = [:]) {
                 writeYaml(data: namespace, file: "namespace.yaml")
             }
 
-	    config.imageName = config.imageName.replaceAll("//", "/").replaceFirst(":/+", "://")
+	    config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
 
             // Deployment
             def deployment = readYaml(file: 'deployment.yaml')
