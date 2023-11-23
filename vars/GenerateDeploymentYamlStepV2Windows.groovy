@@ -90,6 +90,24 @@ def call(Map config = [:]) {
             
             }
         } else {
+	    if(env != null && env != "")
+	    {
+		if (config.type != 'fe')
+		{
+			bat "copy ..\${config.env}\GeneralConfig.json .\"
+		}
+		else
+		{
+			bat "copy ..\${config.env}\GeneralConfig_FrontEnd.json .\"
+		}
+	    }
+	    else
+	    {
+		    configFileProvider([configFile(fileId: 'GeneralConfig', targetLocation: './GeneralConfig.json', variable: 'GeneralConfig'), configFile(fileId: 'GeneralConfig_FrontEnd', targetLocation: './GeneralConfig_FrontEnd.json', variable: 'GeneralConfig_FrontEnd')]) 
+		    {
+			bat "copy file Config"
+		    }
+	    }
             configFileProvider([configFile(fileId: 'kube-deployment-yaml', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-service-yaml', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap')]) {
             def matchers = ~ /.*-(frontend|fe)/
             config.type = config.type ? config.type: (matchers.matcher(config.deploymentName).matches() ? "fe": "be")
