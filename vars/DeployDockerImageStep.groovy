@@ -15,6 +15,7 @@
         AWS CLI : username&password
 */
 def call(Map config = [:]) {
+    config.imageName = config.imageName.replaceAll("//", "/").replaceFirst(":/+", "://")
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
             dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
