@@ -364,7 +364,11 @@ def call(Map config = [:]) {
                 }
                 
                 //Ubah Connection String Redis
-                jsonAppSetting."RedisConfig"."ConnStringRedis" = jsonConfSetting."Redis"."ConnStringRedis"
+		if("RedisConfig" in jsonAppSetting.keySet())
+		{
+		    jsonAppSetting."RedisConfig"."ConnStringRedis" = jsonConfSetting."Redis"."ConnStringRedis"
+		}
+                
 
                 //Ubah Connection Queue
                 if("Queue" in jsonAppSetting.keySet())
