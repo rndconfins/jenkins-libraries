@@ -164,13 +164,13 @@ def call(Map config = [:]) {
                 def jsonSetting = readFile(file: 'GeneralConfig.json')
                 
                 // Membaca JSON
-                jsonString = jsonString.replace("\\", "/")
+                jsonString = jsonString.replaceAll(/\/\*[^*]*\/\/[^*]*\*\//, '')
                 
                 ////hapus comment di json
                 ////def jsonStringWithoutComments = jsonString.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
 		    
 		// Remove single-line comments without removing "http://" or "https://"
-		def jsonWithoutSingleLineComments = jsonString.replaceAll('(?<!https:|http:)//.*?(\r?\n|$)', '\n')
+		def jsonWithoutSingleLineComments = jsonString.replaceAll('(?<!https:|http:|ldap:)//.*?(\r?\n|$)', '\n')
 		
 		// Remove multi-line comments
 		def jsonStringWithoutComments = jsonWithoutSingleLineComments.replaceAll('/\\*.*?\\*/', '')
