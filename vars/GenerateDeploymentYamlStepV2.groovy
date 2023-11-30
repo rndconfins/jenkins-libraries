@@ -102,8 +102,9 @@ def call(Map config = [:]) {
                 def jsonSetting = readFile(file: 'GeneralConfig.json')
                 
                 // Membaca JSON
+		jsonString = jsonString.replaceAll(/\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\//, '')
                 jsonString = jsonString.replaceAll(/\/\*[^*]*\/\/[^*]*\*\//, '')
-                
+		    
                 ////hapus comment di json
                 ////def jsonStringWithoutComments = jsonString.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
 		    
