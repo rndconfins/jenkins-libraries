@@ -104,8 +104,14 @@ def call(Map config = [:]) {
                 // Membaca JSON
                 jsonString = jsonString.replace("\\", "/")
                 
-                //hapus comment di json
-                def jsonStringWithoutComments = jsonString.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
+                ////hapus comment di json
+                ////def jsonStringWithoutComments = jsonString.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
+		    
+		// Remove single-line comments without removing "http://" or "https://"
+		def jsonWithoutSingleLineComments = jsonString.replaceAll('(?<!https:|http:)//.*?(\r?\n|$)', '\n')
+		
+		// Remove multi-line comments
+		def jsonStringWithoutComments = jsonWithoutSingleLineComments.replaceAll('/\\*.*?\\*/', '')
                 
                 def jsonAppSetting = new JsonSlurper().parseText(jsonStringWithoutComments)
                 def jsonConfSetting = new JsonSlurper().parseText(jsonSetting)
