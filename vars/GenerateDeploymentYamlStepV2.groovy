@@ -43,7 +43,7 @@ def call(Map config = [:]) {
 	{
 		configFileProvider([configFile(fileId: 'GeneralConfig', targetLocation: './GeneralConfig.json', variable: 'GeneralConfig'), configFile(fileId: 'GeneralConfig_FrontEnd', targetLocation: './GeneralConfig_FrontEnd.json', variable: 'GeneralConfig_FrontEnd')]) 
 		{
-			sh "copy file Config"
+			echo "Env Copied file Config"
 		}
 	}
 		
