@@ -109,7 +109,7 @@ def call(Map config = [:]) {
                 ////def jsonStringWithoutComments = jsonString.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
 		    
 		// Remove single-line comments without removing "http://" or "https://"
-		def jsonWithoutSingleLineComments = jsonString.replaceAll('(?<!https:|http:|ldap:)//.*?(\r?\n|$)', '\n')
+		def jsonWithoutSingleLineComments = jsonString.replaceAll('(?<!https:|http:|ldap:|ftp:)//.*?(\r?\n|$)', '\n')
 		
 		// Remove multi-line comments
 		def jsonStringWithoutComments = jsonWithoutSingleLineComments.replaceAll('/\\*.*?\\*/', '')
