@@ -92,7 +92,7 @@ def call(Map config = [:]) {
             
             }
         } else {
-	    if(env != null && env != "")
+	    if(config.env != null && config.env != "")
 	    {
 		if (config.type != 'fe')
 		{
