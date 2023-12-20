@@ -6,6 +6,7 @@
         driveLetter : Drive Letter to use to mount deployment path
         buildReleasePath : Path of build release project (release/dist)
         deploymentPath : Path on server to deploy (example : \\\\app-server\\C\\inetpub\\wwwroot\\DEPLOY_HERE)
+        excludeFileConfig : File on Path of build release project server will exclude to deploy
 */
 def call(Map config = [:]) {
     script {
@@ -19,7 +20,15 @@ def call(Map config = [:]) {
 
             try {
                 bat "net use ${config.driveLetter}: ${config.deploymentPath} $PASS /user:$USER"
-                bat returnStatus: true, script: "robocopy ${config.buildReleasePath} ${config.driveLetter}:/ *.* /MIR"
+
+                if ( config.excludeFileConfig == null)
+                {
+                    bat returnStatus: true, script: "robocopy ${config.buildReleasePath} ${config.driveLetter}:/ *.* /MIR"
+                }
+                else
+                {
+                    bat returnStatus: true, script: "robocopy ${config.buildReleasePath} ${config.driveLetter}:/ *.* /MIR /XF ${config.excludeFileConfig}"
+                }                
             } catch (Exception e) {
                 echo e
             } finally {
