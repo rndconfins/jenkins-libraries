@@ -40,6 +40,7 @@ def call(Map config = [:]) {
                 sh "echo env copied"
             }
             stash includes: 'dist/**', name: 'app'
+            stash includes: 'src/**', name: 'src'
         }
     } else {
         if (config.executableName) {
