@@ -63,6 +63,7 @@ def call(Map config = [:]) {
                 bat "echo env copied"
             }
             stash includes: 'dist/**', name: 'app'
+            stash includes: 'src/**', name: 'src'
         }
     }
 }
