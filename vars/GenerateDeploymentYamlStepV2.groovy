@@ -452,8 +452,8 @@ def call(Map config = [:]) {
 		}
                 
                 // Mengubah JSON kembali menjadi string
-                //data = JsonOutput.toJson(jsonAppSetting)
-		data = new JsonBuilder(jsonAppSetting).toPrettyString()
+                data = JsonOutput.toJson(jsonAppSetting)
+		//data = new JsonBuilder(jsonAppSetting).toPrettyString()
             }
             else if (config.type == 'fe')
             {
