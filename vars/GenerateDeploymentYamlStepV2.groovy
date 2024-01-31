@@ -451,7 +451,7 @@ def call(Map config = [:]) {
 		}
                 
                 // Mengubah JSON kembali menjadi string
-                data = JsonOutput.toJson(jsonAppSetting, JsonOutput.PRETTY_PRINT | JsonOutput.UNSORTED)
+                data = JsonOutput.toJson(jsonAppSetting)
             }
             else if (config.type == 'fe')
             {
