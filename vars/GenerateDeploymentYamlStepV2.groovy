@@ -25,6 +25,7 @@
 import org.yaml.snakeyaml.Yaml
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+import groovy.json.JsonBuilder
 
 def call(Map config = [:]) {
     if (isUnix()) {
@@ -451,7 +452,8 @@ def call(Map config = [:]) {
 		}
                 
                 // Mengubah JSON kembali menjadi string
-                data = JsonOutput.toJson(jsonAppSetting)
+                //data = JsonOutput.toJson(jsonAppSetting)
+		data = new JsonBuilder(jsonAppSetting).toPrettyString()
             }
             else if (config.type == 'fe')
             {
