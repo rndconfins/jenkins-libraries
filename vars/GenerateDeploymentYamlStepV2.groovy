@@ -121,7 +121,7 @@ def call(Map config = [:]) {
                 //Ubah Logging
                 if("Logging" in jsonAppSetting."ConnectionStrings".keySet())
                 {
-                    if(jsonConfSetting."Logging"."DataBaseType" == "POSTGRESQL" && jsonConfSetting."Logging"."DataBaseType" != "SQL")
+                    if(jsonConfSetting."Logging"."DataBaseType" == "POSTGRESQL")
                     {
                         def DBString = jsonAppSetting."ConnectionStrings"."Logging"."DataBasePostgreSQL"
 			def keyValuePairs = parseKeyValuePairs(DBString)
@@ -595,15 +595,18 @@ def call(Map config = [:]) {
 
 // Fungsi untuk memecah string menjadi pasangan kunci-nilai
 def parseKeyValuePairs(DBString) {
-    def DBStringSplitData = DBString.split(';')
-    def keyValuePairs = [:]
-
-    DBStringSplitData.each { pair ->
-        def keyValue = pair.split('=')
-        def key = keyValue[0].trim()
-        def value = keyValue[1].trim()
-        keyValuePairs[key] = value
-    }
-
-    return keyValuePairs
+    	if(DBString != "" && DBString != null)
+	{
+	    def DBStringSplitData = DBString.split(';')
+	    def keyValuePairs = [:]
+	
+	    DBStringSplitData.each { pair ->
+		def keyValue = pair.split('=')
+		def key = keyValue[0].trim()
+		def value = keyValue[1].trim()
+		keyValuePairs[key] = value
+	    }
+	
+	    return keyValuePairs
+	}
 }
