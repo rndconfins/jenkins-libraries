@@ -9,6 +9,8 @@
         useNodeTool : use nodejs from environment tool
         skipBuildEvent: skip dotnet build event (default: false)
         isWorker: use build release for worker (default: false)
+        isConsumer: use build release for consumer (default: false)
+        pathProject: use build release for consumer (default: "")
 */
 def call(Map config = [:]) {
     if (isUnix()) {
