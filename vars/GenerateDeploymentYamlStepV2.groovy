@@ -124,18 +124,21 @@ def call(Map config = [:]) {
                     if(jsonConfSetting."Logging"."DataBaseType" == "POSTGRESQL")
                     {
                         def DBString = jsonAppSetting."ConnectionStrings"."Logging"."DataBasePostgreSQL"
-			def keyValuePairs = parseKeyValuePairs(DBString)
-                        
-                        keyValuePairs['Host'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."Host"
-                        keyValuePairs['User ID'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."User ID"
-                        keyValuePairs['Password'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."Password"
-                        keyValuePairs['Port'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."Port"
-                        keyValuePairs['Database'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."DatabaseName"
-                        
-                        def data2 = keyValuePairs.collect { key, value -> "$key=$value" }.join(';')
-                        
-                        jsonAppSetting."ConnectionStrings"."Logging"."DataBaseType" = jsonConfSetting."Logging"."DataBaseType"
-                        jsonAppSetting."ConnectionStrings"."Logging"."DataBasePostgreSQL" = data2
+			if (DBString != "" && DBString != null)
+			{
+				def keyValuePairs = parseKeyValuePairs(DBString)
+	                        
+	                        keyValuePairs['Host'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."Host"
+	                        keyValuePairs['User ID'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."User ID"
+	                        keyValuePairs['Password'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."Password"
+	                        keyValuePairs['Port'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."Port"
+	                        keyValuePairs['Database'] = jsonConfSetting."Logging"."DataBasePostgreSQL"."DatabaseName"
+	                        
+	                        def data2 = keyValuePairs.collect { key, value -> "$key=$value" }.join(';')
+	                        
+	                        jsonAppSetting."ConnectionStrings"."Logging"."DataBaseType" = jsonConfSetting."Logging"."DataBaseType"
+	                        jsonAppSetting."ConnectionStrings"."Logging"."DataBasePostgreSQL" = data2
+			}
                     }
                     else if(jsonConfSetting."Logging"."DataBaseType" == "SSMS")
                     {
@@ -595,18 +598,15 @@ def call(Map config = [:]) {
 
 // Fungsi untuk memecah string menjadi pasangan kunci-nilai
 def parseKeyValuePairs(DBString) {
-    	if(DBString != "" && DBString != null)
-	{
-	    def DBStringSplitData = DBString.split(';')
-	    def keyValuePairs = [:]
+    def DBStringSplitData = DBString.split(';')
+    def keyValuePairs = [:]
+
+    DBStringSplitData.each { pair ->
+	def keyValue = pair.split('=')
+	def key = keyValue[0].trim()
+	def value = keyValue[1].trim()
+	keyValuePairs[key] = value
+    }
 	
-	    DBStringSplitData.each { pair ->
-		def keyValue = pair.split('=')
-		def key = keyValue[0].trim()
-		def value = keyValue[1].trim()
-		keyValuePairs[key] = value
-	    }
-	
-	    return keyValuePairs
-	}
+    return keyValuePairs	
 }
