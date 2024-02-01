@@ -48,6 +48,10 @@ def call(Map config = [:]) {
             if (config.isWorker) {
                 bat "dotnet build -c Release --output ./publish/release ${optionalParams}"
             }
+            else if (config.isConsumer) {
+                def pathProject = config.pathProject ? config.pathProject: ""
+                bat "dotnet publish ${pathProject} -c Release --output ./publish/release ${optionalParams}"
+            }
             else
             {
                 bat "dotnet build -c Release ${optionalParams}"
