@@ -121,7 +121,7 @@ def call(Map config = [:]) {
                 //Ubah Logging
                 if("Logging" in jsonAppSetting."ConnectionStrings".keySet())
                 {
-                    if(jsonConfSetting."Logging"."DataBaseType" == "POSTGRESQL")
+                    if(jsonConfSetting."Logging"."DataBaseType" == "POSTGRESQL" && jsonConfSetting."Logging"."DataBaseType" != "SQL")
                     {
                         def DBString = jsonAppSetting."ConnectionStrings"."Logging"."DataBasePostgreSQL"
 			def keyValuePairs = parseKeyValuePairs(DBString)
