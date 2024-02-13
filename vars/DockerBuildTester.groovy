@@ -7,6 +7,6 @@
 */
 def call(Map config = [:]) {
     config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
-        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref}", ".")
+        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref}")
                     
 }
