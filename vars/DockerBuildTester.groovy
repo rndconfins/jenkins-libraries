@@ -24,7 +24,5 @@ def call(Map config = [:]) {
         dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
-    
-
-                    
+    }
 }
