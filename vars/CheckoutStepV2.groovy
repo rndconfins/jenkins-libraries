@@ -24,13 +24,4 @@ def call(Map config = [:]) {
             ])
         }
     }
-    if (!isUnix()) {
-        powershell "md -Force publish"
-        dir("./publish") {
-            if (!fileExists('.gitignore')) {
-                echo "Init Repo"
-                bat "%SCRIPTS%\\psrun.bat engine-init-repo.ps1 ./"
-            }
-        }
-    }
 }
