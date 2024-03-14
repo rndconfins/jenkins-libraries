@@ -66,8 +66,8 @@ def call(Map config = [:]) {
             service.spec.selector.app = config.deploymentName
             service.spec.ports[0].port = config.krakendPort
             service.spec.ports[0].targetPort = 8080
-            service.spec.ports[0].port = config.appPort
-            service.spec.ports[0].targetPort = 5000
+            service.spec.ports[1].port = config.appPort
+            service.spec.ports[1].targetPort = 5000
             service.spec.type = config.serviceType
 
             sh "rm ./service.yaml"
@@ -78,73 +78,6 @@ def call(Map config = [:]) {
             configmap.metadata.name = """${config.deploymentName}-appsettings"""
             configmap.metadata.namespace = config.namespace
             def data = config.configPath ? readFile(config.configPath): "{}"
-            Map configData = [(config.configMapFileName): data]
-            configmap.data = configData
-
-            // Mengubah JSON kembali menjadi string
-            data = JsonOutput.toJson(jsonAppSetting)
-            }
-            else if (config.type == 'fe')
-            {
-                def jsonString = data
-                def jsonSetting = readFile(file: 'GeneralConfig_FrontEnd.json')
-                
-                // Membaca JSON
-                jsonString = jsonString.replace("\\", "/")
-                jsonSetting = jsonSetting.replace("\\", "/")
-                
-                //hapus comment di json
-                def jsonAppSettingWithoutComments = jsonString.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
-                def jsonConfSettingWithoutComments = jsonSetting.replaceAll(/\/\*(?:[^*]|(?:\*+[^*\/]))*\*\//, '')
-                
-                def jsonAppSetting = new JsonSlurper().parseText(jsonAppSettingWithoutComments)
-                def jsonConfSetting = new JsonSlurper().parseText(jsonConfSettingWithoutComments)
-                
-                // Ubah URL FrontEnd
-                for(KeyNameSetting in jsonAppSetting) {
-                 targetField = KeyNameSetting.key;
-                 if (targetField in jsonConfSetting.keySet())
-                 {
-                     jsonAppSetting."$targetField" = jsonConfSetting."$targetField"                 
-                 }
-                }
-                
-                // Mengubah JSON kembali menjadi string
-                data = JsonOutput.toJson(jsonAppSetting)
-            }
-            else if(config.configMapFileName == 'application.yaml')
-            {
-
-                def StringYaml = data
-                def jsonSetting = readFile(file: 'GeneralConfig.json')                
-                def yaml = new Yaml()
-                def jsonAppSetting = yaml.load(StringYaml)                
-                def jsonConfSetting = new JsonSlurper().parseText(jsonSetting)
-              
-                // Ubah URL FrontEnd
-                if("camunda" in jsonAppSetting.keySet()) {
-                     jsonAppSetting."foundation-url" = jsonConfSetting."Camunda"."foundation-url"
-                     jsonAppSetting."data-base-type" = jsonConfSetting."Camunda"."data-base-type"
-                     jsonAppSetting.spring.datasource.username = jsonConfSetting."Camunda"."username"
-                     jsonAppSetting.spring.datasource.password = jsonConfSetting."Camunda"."password"
-                     jsonAppSetting.spring.datasource.url = jsonConfSetting."Camunda"."url"
-
-                     if (jsonConfSetting."Camunda"."data-base-type" == "SSMS")
-                     {
-                         jsonAppSetting.spring.datasource."driver-class-name" = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                         jsonAppSetting.spring.jpa."database-platform" = "org.hibernate.dialect.SQLServerDialect"
-                     }
-                     else if (jsonConfSetting."Camunda"."data-base-type" == "POSTGRESQL")
-                     {
-                         jsonAppSetting.spring.datasource."driver-class-name" = "org.postgresql.Driver"
-                         jsonAppSetting.spring.jpa."database-platform" = "org.hibernate.dialect.PostgreSQL9Dialect"
-                     }
-                }
-                
-                // Mengubah JSON kembali menjadi string
-                data = yaml.dump(jsonAppSetting)
-            }
-            
             Map configData = [(config.configMapFileName): data]
             configmap.data = configData
 
@@ -159,9 +92,8 @@ def call(Map config = [:]) {
             writeYaml(datas: [deployment, service, configmap], file: "deploymentservice.yaml")
                             
             sh "cat ./deploymentservice.yaml"
-            
-            }
         }
+    }
 }
 
 // Fungsi untuk memecah string menjadi pasangan kunci-nilai
