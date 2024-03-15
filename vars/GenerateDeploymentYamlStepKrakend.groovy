@@ -64,8 +64,10 @@ def call(Map config = [:]) {
             service.metadata.name = config.deploymentName
             service.metadata.namespace = config.namespace
             service.spec.selector.app = config.deploymentName
+            service.spec.ports[0].name = 'krakend'
             service.spec.ports[0].port = config.krakendPort
             service.spec.ports[0].targetPort = 8080
+            service.spec.ports[1].name = 'app'
             service.spec.ports[1].port = config.appPort
             service.spec.ports[1].targetPort = 5000
             service.spec.type = config.serviceType
@@ -77,7 +79,9 @@ def call(Map config = [:]) {
             def configmap = readYaml(file: 'configmap.yaml')
             configmap.metadata.name = """${config.deploymentName}-appsettings"""
             configmap.metadata.namespace = config.namespace
-            def data = config.configPath ? readFile(config.configPath): "{}"
+            def data = config.configPath ? readFile(config.configPath) : "{}"
+            data = JsonOutput.toJson(data)
+            
             Map configData = [(config.configMapFileName): data]
             configmap.data = configData
 
