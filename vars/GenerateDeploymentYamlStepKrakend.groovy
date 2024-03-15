@@ -29,7 +29,7 @@ import groovy.json.JsonBuilder
 
 def call(Map config = [:]) {
     if (isUnix()) {
-        configFileProvider([configFile(fileId: 'kube-deployment-yaml', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-service-yaml', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap')]) 
+        configFileProvider([configFile(fileId: 'kube-krakend-deployment', targetLocation: './deployment.yaml', variable: 'deployment'), configFile(fileId: 'kube-krakend-service', targetLocation: './service.yaml', variable: 'service'), configFile(fileId: 'kube-configmap-yaml', targetLocation: './configmap.yaml', variable: 'configmap')]) 
         {
             // Namespace
             Map namespace = [apiVersion: "v1", kind: "Namespace", metadata: [name: config.namespace]]
@@ -53,8 +53,6 @@ def call(Map config = [:]) {
             deployment.spec.template.spec.containers[0].volumeMounts[0].name = """${config.deploymentName}-volume"""
             deployment.spec.template.spec.containers[0].volumeMounts[0].mountPath = "/etc/krakend/${config.configMapFileName}"
             deployment.spec.template.spec.containers[0].volumeMounts[0].subPath = config.configMapFileName
-            deployment.spec.template.spec.containers[0].ports[0].containerPort = 8080
-            deployment.spec.template.spec.containers[0].ports[1].containerPort = 5000
 
             sh "rm ./deployment.yaml"
             writeYaml(data: deployment, file: "deployment.yaml")
@@ -63,13 +61,9 @@ def call(Map config = [:]) {
             def service = readYaml(file: 'service.yaml')
             service.metadata.name = config.deploymentName
             service.metadata.namespace = config.namespace
-            service.spec.selector.app = config.deploymentName
-            service.spec.ports[0].name = 'krakend'
+            service.spec.selector.app  = config.deploymentName
             service.spec.ports[0].port = config.krakendPort
-            service.spec.ports[0].targetPort = 8080
-            service.spec.ports[1].name = 'app'
             service.spec.ports[1].port = config.appPort
-            service.spec.ports[1].targetPort = 5000
             service.spec.type = config.serviceType
 
             sh "rm ./service.yaml"
@@ -81,7 +75,7 @@ def call(Map config = [:]) {
             configmap.metadata.namespace = config.namespace
             def data = config.configPath ? readFile(config.configPath) : "{}"
             data = JsonOutput.toJson(data)
-            
+
             Map configData = [(config.configMapFileName): data]
             configmap.data = configData
 
