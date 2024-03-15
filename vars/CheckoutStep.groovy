@@ -18,9 +18,11 @@ def call(Map config = [:]) {
         if (config.branchName) {
             checkout([$class: 'GitSCM', branches: [[name: config.branchName]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: config.credentialsId, url: config.url]]])
         } else {
+            def jobUrlParts = JOB_URL.split('/')
+            def jobHostParts = jobUrlParts[2].split(':')            
             checkout([
                 $class: 'TeamFoundationServerScm', projectPath: config.projectPath, serverUrl: config.serverUrl, useOverwrite: true, useUpdate: true, userName: "$USER", password: hudson.util.Secret.fromString("$PASS"), workspaceName: config.workspaceName 
- ? config.workspaceName: 'Hudson-${JOB_NAME}-${NODE_NAME}-CLIENT'
+ ? config.workspaceName: 'Hudson-${jobHostParts[0]}-${JOB_NAME}-${NODE_NAME}-CLIENT'
             ])
         }
     }
