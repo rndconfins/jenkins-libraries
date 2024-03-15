@@ -70,7 +70,7 @@ def call(Map config = [:]) {
                 npm = "$NODE"
             }
             def baseHref = config.baseHref ? config.baseHref: "/"
-            bat "${npm}/node ../node_modules/@angular/cli/bin/ng build --configuration production --aot --outputHashing=all --base-href ${baseHref} --deploy-url ${baseHref}"
+            bat "${npm}/node ./node_modules/@angular/cli/bin/ng build --configuration production --aot --outputHashing=all --base-href ${baseHref} --deploy-url ${baseHref}"
             configFileProvider([configFile(fileId: config.dockerfile ? config.dockerfile: 'dockerfile-fe', targetLocation: 'dist/Dockerfile', variable: 'dockerfile'), configFile(fileId: config.nginxconfig ? config.nginxconfig: 'nginx-fe', targetLocation: "dist/default.conf", variable: 'nginx')]) {
                 bat "echo env copied"
             }
