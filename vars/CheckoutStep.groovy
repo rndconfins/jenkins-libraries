@@ -19,10 +19,11 @@ def call(Map config = [:]) {
             checkout([$class: 'GitSCM', branches: [[name: config.branchName]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: config.credentialsId, url: config.url]]])
         } else {
             def jobUrlParts = JOB_URL.split('/')
-            def jobHostParts = jobUrlParts[2].split(':')            
+            def jobHostParts = jobUrlParts[2].split(':')  
+            def jobHostPartsNoPort = jobHostParts[0]
             checkout([
                 $class: 'TeamFoundationServerScm', projectPath: config.projectPath, serverUrl: config.serverUrl, useOverwrite: true, useUpdate: true, userName: "$USER", password: hudson.util.Secret.fromString("$PASS"), workspaceName: config.workspaceName 
- ? config.workspaceName: 'Hudson-${jobHostParts[0]}-${JOB_NAME}-${NODE_NAME}-CLIENT'
+ ? config.workspaceName: 'Hudson-${jobHostPartsNoPort}-${JOB_NAME}-${NODE_NAME}-CLIENT'
             ])
         }
     }
