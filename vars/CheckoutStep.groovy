@@ -24,7 +24,7 @@ def call(Map config = [:]) {
                 def jobHostPartsNoPort = jobHostParts[0]
                 checkout([
                     $class: 'TeamFoundationServerScm', projectPath: config.projectPath, serverUrl: config.serverUrl, useOverwrite: true, useUpdate: true, userName: "$USER", password: hudson.util.Secret.fromString("$PASS"), workspaceName: config.workspaceName 
-     ? config.workspaceName: 'Hudson-'+ jobHostPartsNoPort + '${JOB_NAME}-CLIENT'
+     ? config.workspaceName: 'Hudson-'+ jobHostPartsNoPort + '-${JOB_NAME}-${NODE_NAME}-CLIENT'
                 ])
             
         }
