@@ -74,7 +74,7 @@ def call(Map config = [:]) {
             configmap.metadata.name = """${config.deploymentName}-appsettings"""
             configmap.metadata.namespace = config.namespace
             def data = config.configPath ? readFile(config.configPath) : "{}"
-            data = JsonOutput.toJson(data)
+            // data = JsonOutput.toJson(data)
 
             Map configData = [(config.configMapFileName): data]
             configmap.data = configData
