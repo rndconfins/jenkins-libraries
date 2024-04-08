@@ -9,7 +9,7 @@
 def call(Map config = [:]) {
     script {
             try {
-                    bat returnStatus: true, script: "robocopy ${config.buildReleasePath} ${config.deploymentPath} *.* /MIR /XF ${config.excludeFileConfig}"
+                    bat returnStatus: true, script: "robocopy ${config.buildReleasePath} ${config.deploymentPath} *.* /MIR /XN ${config.excludeFileConfig}"
                 }                
             catch (Exception e) {
                 echo e
