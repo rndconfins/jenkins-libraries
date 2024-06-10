@@ -48,14 +48,17 @@ def call(Map config = [:]) {
         if (config.executableName) {
             def optionalParams = config.skipBuildEvent ? "/p:PreBuildEvent= /p:PostBuildEvent=" : "" 
             if (config.isWorker) {
+                bat "dotnet restore"
                 bat "dotnet build -c Release --output ./publish/release ${optionalParams}"
             }
             else if (config.isConsumer) {
                 def pathProject = config.pathProject ? config.pathProject: ""
+                bat "dotnet restore"
                 bat "dotnet publish ${pathProject} -c Release --output ./publish/release ${optionalParams}"
             }
             else
             {
+                bat "dotnet restore"
                 bat "dotnet build -c Release ${optionalParams}"
                 bat "dotnet publish -c Release --output ./publish/release ${optionalParams}"
             }
