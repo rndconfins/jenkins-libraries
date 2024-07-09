@@ -17,7 +17,7 @@
 */
 def call(Map config = [:]) {
     config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
-    def arr = ${config.newImage}.split(";")
+    def arr = ${config.tagImage}.split(";")
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
             arr.each{ element ->
