@@ -6,6 +6,6 @@
         newImage : the name of the image 
 */
 def call(Map config = [:]) {
-    dockerImageRemote = docker.image(${config.oldImage})
-    dockerImage.tag(${config.newImage})
+    dockerImageRemote = docker.image("${config.oldImage}")
+    dockerImage.tag("${config.newImage}")
 }
