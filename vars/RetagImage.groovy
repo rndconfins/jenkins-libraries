@@ -8,9 +8,9 @@
 */
 def call(Map config = [:]) {
 
-    def arr = "${config.newImage}.split(";")"
+    def arr = "${config.newImage}".split(";")
     arr.each{ element ->
-        sh 'docker tag "${config.oldImage}" "${config.tagImage}":(element) '
+        sh "docker tag ${config.oldImage} ${config.tagImage}:(element)"
     }
     
 }
