@@ -30,12 +30,18 @@ def call(Map config = [:]) {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login -u _json_key --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.image("${config.imageName}").push() 
+        arr.each{ element ->
+                //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
+                sh "docker push ${config.imageName}:${element}"
+            }
     } else if (config.cloudType == "AWS") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login --username AWS --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.image("${config.imageName}").push() 
+        arr.each{ element ->
+                //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
+                sh "docker push ${config.imageName}:${element}"
+            }
     } else if (config.cloudType == "AWS CLI") {
         if (!env.AWS_DEFAULT_REGION) {
             env.AWS_DEFAULT_REGION = config.regionId
@@ -46,11 +52,17 @@ def call(Map config = [:]) {
             sh "aws ecr get-login-password > ~/aws_creds.txt"
             sh "cat ~/aws_creds.txt | docker login --username AWS --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.image("${config.imageName}").push() 
+        arr.each{ element ->
+                //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
+                sh "docker push ${config.imageName}:${element}"
+            }
     } else if (config.cloudType == "Azure") {
         echo "Azure Provider is under maintenance or unavailable"
     }
     else if (config.cloudType == "Local Registry") {
-            dockerImageRemote = docker.image("${config.imageName}").push() 
+            arr.each{ element ->
+                //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
+                sh "docker push ${config.imageName}:${element}"
+            }
     }
 }
