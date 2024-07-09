@@ -21,7 +21,7 @@ def call(Map config = [:]) {
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
             arr.each{ element ->
-                dockerImageRemote = docker.image("${config.imageName}").push(element)
+                dockerImageRemote = docker.image("${config.imageName}").push("${element}")
             }
              
         }
