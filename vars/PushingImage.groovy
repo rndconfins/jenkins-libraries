@@ -7,6 +7,7 @@
         registryURL : Container Registry endpoint URL
         imageName : Docker image name to push to container registry
         regionId : (AWS CLI) AWS Region ID
+        tagImage : the tag of the new image
 
     credentialsId :
         Alibaba Cloud : username&password
@@ -16,9 +17,13 @@
 */
 def call(Map config = [:]) {
     config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
+    def arr = ${config.newImage}.split(";")
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
-            dockerImageRemote = docker.image("${config.imageName}").push() 
+            arr.each{ element ->
+                dockerImageRemote = docker.image("${config.imageName}").push(element)
+            }
+             
         }
     } else if (config.cloudType == "Google Cloud") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
