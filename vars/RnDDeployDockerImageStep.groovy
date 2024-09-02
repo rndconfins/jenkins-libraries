@@ -17,7 +17,7 @@
 */
 def call(Map config = [:]) {
     config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
-    config.BranchName = originalString.replace("/", "-")
+    config.BranchName = config.BranchName.replace("/", "-")
     
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
