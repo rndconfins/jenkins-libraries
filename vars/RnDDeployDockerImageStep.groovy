@@ -40,6 +40,7 @@ def call(Map config = [:]) {
         dockerImageRemote.push()
         dockerImageRemote.push("latest")
     } else if (config.cloudType == "AWS CLI") {
+        echo "AWS CLI"
         if (!env.AWS_DEFAULT_REGION) {
             env.AWS_DEFAULT_REGION = config.regionId
         }
