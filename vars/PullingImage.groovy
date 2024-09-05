@@ -40,8 +40,9 @@ def call(Map config = [:]) {
             sh "aws ecr get-login-password > ~/aws_creds.txt"
             sh "cat ~/aws_creds.txt | docker login --username AWS --password-stdin ${config.registryURL}"
             echo "image - ${config.imageName}"
-            dockerImageRemote = docker.image("${config.imageName}").pull()
-        }         
+            sh "docker pull ${config.imageName}"
+        }
+        //dockerImageRemote = docker.image("${config.imageName}").pull()
     } else if (config.cloudType == "Azure") {
         echo "Azure Provider is under maintenance or unavailable"
     }
