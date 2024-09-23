@@ -12,11 +12,11 @@ ENV ENTRY_POINT=${executableName}
 WORKDIR /app
 
 # Insert Telemetry
-RUN apt-get update \
-    apt-get install -y curl telnet unzip \
-    curl -LO https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/download/v0.5.0/opentelemetry-dotnet-instrumentation-linux-glibc.zip \
-    unzip open*.zip -d opentelemetry-libs\
-    rm opentelemetry-dotnet-instrumentation-linux-glibc.zip \
+RUN apt-get update && \
+    apt-get install -y curl telnet unzip && \
+    curl -LO https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/download/v0.5.0/opentelemetry-dotnet-instrumentation-linux-glibc.zip && \
+    unzip open*.zip -d opentelemetry-libs && \
+    rm opentelemetry-dotnet-instrumentation-linux-glibc.zip
 
 # Copy from the builder to WORKDIR
 COPY publish/release /app
