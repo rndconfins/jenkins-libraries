@@ -6,6 +6,9 @@ ARG executableName= ""
 # Set environment variable to pass ARG to runtime
 ENV executableName=${executableName}
 
+RUN echo "Hello from the .NET 6.0 base image!"
+RUN echo ${executableName}
+
 # Set Working directory
 WORKDIR /app
 
