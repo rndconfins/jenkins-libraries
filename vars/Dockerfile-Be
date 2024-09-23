@@ -6,9 +6,6 @@ ARG executableName= ""
 # Set environment variable to pass ARG to runtime
 ENV ENTRY_POINT=${executableName}
 
-RUN echo "Hello from the .NET 6.0 base image!"
-RUN echo ${ENTRY_POINT}
-
 # Set Working directory
 WORKDIR /app
 
@@ -21,4 +18,4 @@ RUN rm opentelemetry-dotnet-instrumentation-linux-glibc.zip
 
 # Copy from the builder to WORKDIR
 COPY publish/release /app
-ENTRYPOINT ["dotnet", "${ENTRY_POINT}"]
+ENTRYPOINT ["sh", "-c", "dotnet $ENTRY_POINT"]
