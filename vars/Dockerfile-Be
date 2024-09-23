@@ -21,4 +21,4 @@ RUN rm opentelemetry-dotnet-instrumentation-linux-glibc.zip
 
 # Copy from the builder to WORKDIR
 COPY publish/release /app
-ENTRYPOINT ["dotnet", ${ENTRY_POINT}]
+ENTRYPOINT ["dotnet", "${ENTRY_POINT}"]
