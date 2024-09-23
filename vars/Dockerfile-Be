@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
+#set ARG for entrypoint
+ARG executableName= ""
+
+# Set Working directory
+WORKDIR /app
+
+# Insert Telemetry
+RUN apt-get update
+RUN apt-get install -y curl telnet unzip
+RUN curl -LO https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/download/v0.5.0/opentelemetry-dotnet-instrumentation-linux-glibc.zip
+RUN unzip open*.zip -d opentelemetry-libs
+RUN rm opentelemetry-dotnet-instrumentation-linux-glibc.zip
+
+# Copy from the builder to WORKDIR
+COPY ./publish/release /app
+ENTRYPOINT ["dotnet", ${executableName}]
