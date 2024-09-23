@@ -4,10 +4,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 ARG executableName= ""
 
 # Set environment variable to pass ARG to runtime
-ENV executableName=${executableName}
+ENV ENTRY_POINT=${executableName}
 
 RUN echo "Hello from the .NET 6.0 base image!"
-RUN echo ${executableName}
+RUN echo ${ENTRY_POINT}
 
 # Set Working directory
 WORKDIR /app
@@ -21,4 +21,4 @@ RUN rm opentelemetry-dotnet-instrumentation-linux-glibc.zip
 
 # Copy from the builder to WORKDIR
 COPY publish/release /app
-ENTRYPOINT ["dotnet", ${executableName}]
+ENTRYPOINT ["dotnet", ${ENTRY_POINT}]
