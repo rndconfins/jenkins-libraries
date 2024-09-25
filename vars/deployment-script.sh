@@ -7,6 +7,15 @@ GCP_PROJECT="$6"
 APP_NAME="$7"
 VERSION="$8"
 
+echo "CloudType: $CLOUD_TYPE"
+echo "DockerUrl: $DOCKER_REGISTRY_URL"
+echo "Username: $USERNAME"
+echo "Password $PASSWORD"
+echo "GCP_KEY: $GCP_KEY"
+echo "GCP_PROJECT: $GCP_PROJECT"
+echo "APP_NAME: $APP_NAME"
+echo "VERSION: $VERSION"
+
 if [ "${CLOUD_TYPE}" = "AWS" ]
 then	
   apk add --no-cache aws-cli
