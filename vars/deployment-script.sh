@@ -7,15 +7,6 @@ GCP_PROJECT="$6"
 APP_NAME="$7"
 VERSION="$8"
 
-echo "CloudType: $CLOUD_TYPE"
-echo "DockerUrl: $DOCKER_REGISTRY_URL"
-echo "Username: $USERNAME"
-echo "Password $PASSWORD"
-echo "GCP_KEY: $GCP_KEY"
-echo "GCP_PROJECT: $GCP_PROJECT"
-echo "APP_NAME: $APP_NAME"
-echo "VERSION: $VERSION"
-
 if [ "${CLOUD_TYPE}" = "AWS" ]
 then	
   apk add --no-cache aws-cli
@@ -25,15 +16,21 @@ then
   cat aws_creds.txt | docker login --username AWS --password-stdin "${DOCKER_REGISTRY_URL}"
   docker tag newimage:latest "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
   docker push "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
+  docker tag newimage:latest "${DOCKER_REGISTRY_URL}/${APP_NAME}":latest
+  docker push "${DOCKER_REGISTRY_URL}/${APP_NAME}":latest
 elif [ "${CLOUD_TYPE}" = "ALIBABA" ]
 then
   docker login -u "${USERNAME}" -p "${PASSWORD}" "${DOCKER_REGISTRY_URL}"
   docker tag newimage:latest "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
   docker push "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
+  docker tag newimage:latest "${DOCKER_REGISTRY_URL}/${APP_NAME}":latest
+  docker push "${DOCKER_REGISTRY_URL}/${APP_NAME}":latest
 elif [ "${CLOUD_TYPE}" = "GCP" ]
 then
   echo "${GCP_KEY}" | base64 -d >> key-file.json
   cat key-file.json | docker login -u _json_key --password-stdin "${DOCKER_REGISTRY_URL}"
   docker tag newimage:latest "${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}"
   docker push "${DOCKER_REGISTRY_URL}/${GCP_PROJECT}/${APP_NAME}:${VERSION}"
+  docker tag newimage:latest "${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}":latest
+  docker push "${DOCKER_REGISTRY_URL}/${GCP_PROJECT}/${APP_NAME}":latest
 fi
