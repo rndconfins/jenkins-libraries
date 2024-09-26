@@ -39,7 +39,7 @@ then
   curl https://sdk.cloud.google.com > install.sh
   ls -a
   chmod +x install.sh
-  ./install.sh --disable-prompts
+  bash install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
   gcloud auth activate-service-account --key-file=gcloud-service-key.json
   gcloud --quiet config set project ${GCP_PROJECT}
