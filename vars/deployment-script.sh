@@ -39,6 +39,7 @@ then
   chmod +x install.sh
   bash install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
+  cd ~/google-cloud-sdk
   ls -a
   gcloud init
   gcloud auth activate-service-account --key-file=gcloud-service-key.json
