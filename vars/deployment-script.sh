@@ -37,6 +37,7 @@ then
   python3 --version
   echo "pemisah"
   curl https://sdk.cloud.google.com > install.sh
+  chmod +x install.sh
   ./install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
   gcloud auth activate-service-account --key-file=gcloud-service-key.json
