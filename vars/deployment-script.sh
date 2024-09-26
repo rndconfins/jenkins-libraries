@@ -32,16 +32,8 @@ then
   docker push ${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}
 elif [ "${CLOUD_TYPE}" = "GCP" ]
 then
-  apk update
-  apk add python3
-  python3 --version
-  curl https://sdk.cloud.google.com > install.sh
-  chmod +x install.sh
-  bash install.sh --disable-prompts
-  echo ${GCP_KEY} > gcloud-service-key.json
-  ls -a
-  ~/google-cloud-sdk/bin/gcloud auth activate-service-account asacggcpdemo1@gmail.com --key-file=gcloud-service-key.json --project=${GCP_PROJECT}
-  
+  echo "${GCP_KEY}" | base64 -d >> key-file.json
+  cat key-file.json | docker login -u _json_key --password-stdin ${config.registryURL}
   docker tag newimage:latest ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
   docker push ${DOCKER_REGISTRY_URL}/${GCP_PROJECT}/${APP_NAME}:${VERSION}
 fi
