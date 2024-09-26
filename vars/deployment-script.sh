@@ -32,6 +32,10 @@ then
   docker push ${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}
 elif [ "${CLOUD_TYPE}" = "GCP" ]
 then
+  curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
+  tar -xf google-cloud-cli-linux-x86_64.tar.gz
+  ./google-cloud-sdk/install.sh
+  ./google-cloud-sdk/bin/gcloud init
   echo ${GCP_KEY} > gcloud-service-key.json
   gcloud auth activate-service-account --key-file=gcloud-service-key.json
   gcloud --quiet config set project ${GCP_PROJECT}
