@@ -40,9 +40,8 @@ then
   bash install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
   ls -a
-  ~/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=gcloud-service-key.json
-  ~/google-cloud-sdk/bin/gcloud --quiet config set project ${GCP_PROJECT}
-  ~/google-cloud-sdk/bin/gcloud --quiet auth configure-docker "${DOCKER_REGISTRY_URL}"
+  ~/google-cloud-sdk/bin/gcloud auth activate-service-account asacggcpdemo1@gmail.com --key-file=gcloud-service-key.json --project=${GCP_PROJECT}
+  
   docker tag newimage:latest ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
-  docker push ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
+  docker push ${DOCKER_REGISTRY_URL}/${GCP_PROJECT}/${APP_NAME}:${VERSION}
 fi
