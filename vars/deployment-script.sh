@@ -41,9 +41,9 @@ then
   ./google-cloud-sdk/install.sh
   ./google-cloud-sdk/bin/gcloud init
   echo ${GCP_KEY} > gcloud-service-key.json
-  gcloud auth activate-service-account --key-file=gcloud-service-key.json
-  gcloud --quiet config set project ${GCP_PROJECT}
-  gcloud --quiet auth configure-docker "${DOCKER_REGISTRY_URL}"
+  ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=gcloud-service-key.json
+  ./google-cloud-sdk/bin/gcloud --quiet config set project ${GCP_PROJECT}
+  ./google-cloud-sdk/bin/gcloud --quiet auth configure-docker "${DOCKER_REGISTRY_URL}"
   docker tag newimage:latest ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
   docker push ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
 fi
