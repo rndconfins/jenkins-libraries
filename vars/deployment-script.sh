@@ -37,6 +37,7 @@ then
   python3 --version
   echo "pemisah"
   curl https://sdk.cloud.google.com > install.sh
+  ls -a
   chmod +x install.sh
   ./install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
