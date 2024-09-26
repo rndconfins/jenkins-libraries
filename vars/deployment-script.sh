@@ -41,6 +41,7 @@ then
   chmod +x install.sh
   bash install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
+  gcloud init
   gcloud auth activate-service-account --key-file=gcloud-service-key.json
   gcloud --quiet config set project ${GCP_PROJECT}
   gcloud --quiet auth configure-docker "${DOCKER_REGISTRY_URL}"
