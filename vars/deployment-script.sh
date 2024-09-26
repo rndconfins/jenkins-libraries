@@ -23,17 +23,17 @@ then
   aws configure set aws_secret_access_key "${PASSWORD}"
   aws ecr get-login-password > aws_creds.txt
   cat aws_creds.txt | docker login --username AWS --password-stdin "${DOCKER_REGISTRY_URL}"
-  docker tag newimage:latest ${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}
-  docker push ${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}
+  docker tag newimage:latest "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
+  docker push "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
 elif [ "${CLOUD_TYPE}" = "ALIBABA" ]
 then
   docker login -u "${USERNAME}" -p "${PASSWORD}" "${DOCKER_REGISTRY_URL}"
-  docker tag newimage:latest ${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}
-  docker push ${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}
+  docker tag newimage:latest "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
+  docker push "${DOCKER_REGISTRY_URL}/${APP_NAME}:${VERSION}"
 elif [ "${CLOUD_TYPE}" = "GCP" ]
 then
   echo "${GCP_KEY}" | base64 -d >> key-file.json
-  cat key-file.json | docker login -u _json_key --password-stdin ${config.registryURL}
-  docker tag newimage:latest ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
-  docker push ${DOCKER_REGISTRY_URL}/${GCP_PROJECT}/${APP_NAME}:${VERSION}
+  cat key-file.json | docker login -u _json_key --password-stdin "${DOCKER_REGISTRY_URL}"
+  docker tag newimage:latest "${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}"
+  docker push "${DOCKER_REGISTRY_URL}/${GCP_PROJECT}/${APP_NAME}:${VERSION}"
 fi
