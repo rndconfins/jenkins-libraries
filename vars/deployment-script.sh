@@ -36,14 +36,12 @@ then
   apk add python3
   python3 --version
   echo "pemisah"
-  curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
-  tar -xf google-cloud-cli-linux-x86_64.tar.gz
-  ./google-cloud-sdk/install.sh
-  ./google-cloud-sdk/bin/gcloud init
+  curl https://sdk.cloud.google.com > install.sh
+  ./install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
-  ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=gcloud-service-key.json
-  ./google-cloud-sdk/bin/gcloud --quiet config set project ${GCP_PROJECT}
-  ./google-cloud-sdk/bin/gcloud --quiet auth configure-docker "${DOCKER_REGISTRY_URL}"
+  gcloud auth activate-service-account --key-file=gcloud-service-key.json
+  gcloud --quiet config set project ${GCP_PROJECT}
+  gcloud --quiet auth configure-docker "${DOCKER_REGISTRY_URL}"
   docker tag newimage:latest ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
   docker push ${DOCKER_REGISTRY_URL}/$GCP_PROJECT/${APP_NAME}:${VERSION}
 fi
