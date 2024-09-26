@@ -35,12 +35,11 @@ then
   apk update
   apk add python3
   python3 --version
-  echo "pemisah"
   curl https://sdk.cloud.google.com > install.sh
-  ls -a
   chmod +x install.sh
   bash install.sh --disable-prompts
   echo ${GCP_KEY} > gcloud-service-key.json
+  ls -a
   gcloud init
   gcloud auth activate-service-account --key-file=gcloud-service-key.json
   gcloud --quiet config set project ${GCP_PROJECT}
