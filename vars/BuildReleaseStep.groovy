@@ -52,12 +52,12 @@ def call(Map config = [:]) {
             }
             else if (config.isConsumer) {
                 def pathProject = config.pathProject ? config.pathProject: ""
-                bat "dotnet publish ${pathProject} -c Release --output ./publish/release ${optionalParams}"
+                bat "dotnet build ${pathProject} -c Release --output ./publish/release ${optionalParams}"
             }
             else
             {
                 bat "dotnet build -c Release ${optionalParams}"
-                bat "dotnet publish -c Release --output ./publish/release ${optionalParams}"
+                bat "dotnet build -c Release --output ./publish/release ${optionalParams}"
             }
             configFileProvider([configFile(fileId: config.dockerfile ? config.dockerfile: 'dockerfile-be', targetLocation: 'publish/release/Dockerfile', variable: 'dockerfile'), configFile(fileId: 'swagger-xml', targetLocation: "publish/release/${config.executableName}.xml", variable: 'swagger')]) {
                 bat "echo ENTRYPOINT [\"dotnet\", \"${config.executableName}.dll\"] >> publish\\release\\Dockerfile"
