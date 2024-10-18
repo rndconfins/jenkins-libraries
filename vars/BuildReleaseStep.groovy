@@ -52,7 +52,7 @@ def call(Map config = [:]) {
             }
             else if (config.isConsumer) {
                 def pathProject = config.pathProject ? config.pathProject: ""
-                bat "dotnet build ${pathProject} -c Release --output ./publish/release ${optionalParams}"
+                bat "dotnet publish ${pathProject} -c Release --output ./publish/release ${optionalParams}"
             }
             else
             {
