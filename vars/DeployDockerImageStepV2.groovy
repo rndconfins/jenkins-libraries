@@ -19,7 +19,7 @@ def call(Map config = [:]) {
     config.imageName = config.imageName.replaceAll("/null/", "/").replaceAll("//", "/").replaceFirst(":/+", "://")
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
-            dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
+            dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--no-cache --build-arg baseHref=${config.baseHref} .")
             dockerImageRemote.push()
             dockerImageRemote.push("cloud")
         }
@@ -27,14 +27,14 @@ def call(Map config = [:]) {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login -u _json_key --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
+        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--no-cache --build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
     } else if (config.cloudType == "AWS") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login --username AWS --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
+        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--no-cache --build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
     } else if (config.cloudType == "AWS CLI") {
@@ -47,14 +47,14 @@ def call(Map config = [:]) {
             sh "aws ecr get-login-password > ~/aws_creds.txt"
             sh "cat ~/aws_creds.txt | docker login --username AWS --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
+        dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--no-cache --build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
     } else if (config.cloudType == "Azure") {
         echo "Azure Provider is under maintenance or unavailable"
     }
     else if (config.cloudType == "Local Registry") {
-            dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
+            dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--no-cache --build-arg baseHref=${config.baseHref} .")
             dockerImageRemote.push()
             dockerImageRemote.push("latest")
     }
