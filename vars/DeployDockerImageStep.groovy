@@ -47,7 +47,6 @@ def call(Map config = [:]) {
             sh "aws configure set aws_secret_access_key $SECRET"
             sh "aws ecr get-login-password > ~/aws_creds.txt"
             sh "cat ~/aws_creds.txt | docker login --username AWS --password-stdin ${config.registryURL}"
-            sh "echo ${repoName}"
             sh "aws ecr describe-repositories --repository-names ${repoName} --region ap-southeast-3 >/dev/null 2>&1 || aws ecr create-repository --repository-name ${repoName}  --region ap-southeast-3"
         }
         dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
