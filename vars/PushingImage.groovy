@@ -47,10 +47,13 @@ def call(Map config = [:]) {
             env.AWS_DEFAULT_REGION = config.regionId
         }
         withCredentials([usernamePassword(credentialsId: "${config.credentialsId}", passwordVariable: 'SECRET', usernameVariable: 'KEY')]) {
+            def fullRepo = config.imageName
+            def repoName = fullRepo.split('.amazonaws.com/')[1]
             sh "aws configure set aws_access_key_id $KEY"
             sh "aws configure set aws_secret_access_key $SECRET"
             sh "aws ecr get-login-password > ~/aws_creds.txt"
             sh "cat ~/aws_creds.txt | docker login --username AWS --password-stdin ${config.registryURL}"
+            sh "aws ecr describe-repositories --repository-names ${repoName} --region ${config.regionId} >/dev/null 2>&1 || aws ecr create-repository --repository-name ${repoName}  --region ${config.regionId}"
         }
         arr.each{ element ->
                 //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
