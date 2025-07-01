@@ -48,7 +48,14 @@ def call(Map config = [:]) {
             sh "aws configure set aws_secret_access_key $SECRET"
             sh "aws ecr get-login-password > ~/aws_creds.txt"
             sh "cat ~/aws_creds.txt | docker login --username AWS --password-stdin ${config.registryURL}"
-            sh "aws ecr describe-repositories --repository-names ${repoName} --region ${config.regionId} >/dev/null 2>&1 || aws ecr create-repository --repository-name ${repoName}  --region ${config.regionId}"
+
+            def describeExitCode = sh(
+                script: "aws ecr describe-repositories --repository-names ${repoName} --region ${config.regionId} >/dev/null 2>&1 || aws ecr create-repository --repository-name ${repoName} --region ${config.regionId}",
+                returnStatus: true
+            )
+            if (describeExitCode != 0) {
+                echo "Warning: ECR describe/create repository failed, continuing..."
+            }
         }
         dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
