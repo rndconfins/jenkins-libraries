@@ -66,4 +66,43 @@ def call(Map config = [:]) {
             dockerImageRemote.push()
             dockerImageRemote.push("latest")
     }
+    else if (config.cloudType == "OIDC") {
+        sh "export VAULT_ADDR=https://omnisecret.bfidigital.id"
+        
+        sh '''
+        VAULT_TOKEN=$(curl -s \
+          --request POST \
+          --header "Content-Type: application/json" \
+          --data "{\"role_id\": \"b6228b16-6700-ffed-1f2b-8e1e0bd354e5\", \"secret_id\": \"d14767c4-01d6-ddce-9eb2-68f8d18eaa44\"}" \
+          "$VAULT_ADDR/v1/auth/approle/login" \
+          | jq -r '.auth.client_token')
+          '''
+        
+        # 2. Ambil OIDC Token
+        sh '''
+        OIDC_TOKEN=$(curl -s \
+          --header "X-Vault-Token: $VAULT_TOKEN" \
+          "$VAULT_ADDR/v1/identity/oidc/token/role-001" \
+          | jq -r '.data.token')
+          '''
+        
+        
+        sh '''
+        FEDERATED_TOKEN=$(curl -s -X POST \
+          -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+          -d "audience=//iam.googleapis.com/projects/695826792989/locations/global/workloadIdentityPools/vault-pool/providers/oidc-vault" \
+          -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt" \
+          -d "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+          -d "scope=https://www.googleapis.com/auth/cloud-platform" \
+          -d "subject_token=$OIDC_TOKEN" \
+          https://sts.googleapis.com/v1beta/token \
+          | jq -r '.access_token')
+        '''
+        
+        sh ''' echo "$FEDERATED_TOKEN" | docker login -u oauth2accesstoken --password-stdin asia-southeast2-docker.pkg.dev '''
+        dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
+        dockerImageRemote.push()
+        dockerImageRemote.push("cloud")
+    }
+    
 }
