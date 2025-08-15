@@ -78,7 +78,6 @@ def call(Map config = [:]) {
           | jq -r '.auth.client_token')
           '''
         
-        # 2. Ambil OIDC Token
         sh '''
         OIDC_TOKEN=$(curl -s \
           --header "X-Vault-Token: $VAULT_TOKEN" \
