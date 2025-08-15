@@ -69,14 +69,14 @@ def call(Map config = [:]) {
     else if (config.cloudType == "OIDC") {
         sh '''
         export VAULT_ADDR=https://omnisecret.bfidigital.id
-        
+        echo $VAULT_ADDR
         VAULT_TOKEN=$(curl -s \
           --request POST \
           --header "Content-Type: application/json" \
           --data "{\"role_id\": \"b6228b16-6700-ffed-1f2b-8e1e0bd354e5\", \"secret_id\": \"d14767c4-01d6-ddce-9eb2-68f8d18eaa44\"}" \
           "$VAULT_ADDR/v1/auth/approle/login" \
           | jq -r '.auth.client_token')
-        
+        echo $VAULT_TOKEN
         OIDC_TOKEN=$(curl -s \
           --header "X-Vault-Token: $VAULT_TOKEN" \
           "$VAULT_ADDR/v1/identity/oidc/token/role-001" \
