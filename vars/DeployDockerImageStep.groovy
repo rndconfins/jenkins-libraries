@@ -91,10 +91,17 @@ def call(Map config = [:]) {
         echo "$FEDERATED_TOKEN" | docker login -u oauth2accesstoken --password-stdin asia-southeast2-docker.pkg.dev
         
         '''
-        
+        if (config.Tag){
+            
+        dockerImageRemote = docker.build "${config.imageName}:build-${config.Tag}"
+        dockerImageRemote.push()
+        dockerImageRemote.push("cloud")
+        }
+        else {
         dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
+        }
     }
     
 }
