@@ -93,7 +93,7 @@ def call(Map config = [:]) {
         '''
         if (config.Tag){
             
-        dockerImageRemote = docker.build "${config.imageName}:build-${config.Tag}"
+        dockerImageRemote = docker.build "${config.imageName}:${config.Tag}"
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
         }
