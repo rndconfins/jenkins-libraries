@@ -26,6 +26,7 @@ def call(Map config = [:]) {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
             dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
             dockerImageRemote.push()
+            dockerImageRemote.push("cloud")
         }
     } else if (config.cloudType == "Google Cloud") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
@@ -33,12 +34,14 @@ def call(Map config = [:]) {
         }
         dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
         dockerImageRemote.push()
+        dockerImageRemote.push("cloud")
     } else if (config.cloudType == "AWS") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login --username AWS --password-stdin ${config.registryURL}"
         }
         dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
         dockerImageRemote.push()
+        dockerImageRemote.push("cloud")
     } else if (config.cloudType == "AWS CLI") {
         if (!env.AWS_DEFAULT_REGION) {
             env.AWS_DEFAULT_REGION = config.regionId
@@ -61,12 +64,14 @@ def call(Map config = [:]) {
         }
         dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
         dockerImageRemote.push()
+        dockerImageRemote.push("cloud")
     } else if (config.cloudType == "Azure") {
         echo "Azure Provider is under maintenance or unavailable"
     }
     else if (config.cloudType == "Local Registry") {
             dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
             dockerImageRemote.push()
+            dockerImageRemote.push("latest")
     }
         else if (config.cloudType == "OIDC") {
         sh '''
@@ -96,5 +101,6 @@ def call(Map config = [:]) {
         
         dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
         dockerImageRemote.push()
+        dockerImageRemote.push("cloud")
     }
 }
