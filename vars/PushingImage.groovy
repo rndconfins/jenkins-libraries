@@ -61,9 +61,10 @@ def call(Map config = [:]) {
             }
     } else if (config.cloudType == "Azure") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
-            dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
-            dockerImageRemote.push()
-            dockerImageRemote.push("cloud")
+            arr.each{ element ->
+                //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
+                sh "docker push ${config.imageName}:${element}"
+            }
         }
     }
     else if (config.cloudType == "Local Registry") {
