@@ -64,7 +64,7 @@ def call(Map config = [:]) {
         echo "1"
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
             echo "2"
-            dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
+            dockerImageRemote = docker.build("${config.imageName}:build-${env.BUILD_ID}", "--build-arg baseHref=${config.baseHref} .")
             echo "3"
             dockerImageRemote.push()
             echo "4"
