@@ -15,9 +15,9 @@ def call(Map config = [:]) {
     def awsCliPath = isUnix() ? 'aws' : 'C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe'
     
     // Optional parameters
-    def pageVersionFile = config.pageVersionFile ?: 'page-version.json'
-    def lookupVersionFile = config.lookupVersionFile ?: 'lookup-version.json'
-    def customComponentVersionFile = config.customComponentVersionFile ?: 'custom-component-version.json'
+    def pageVersionFile = config.pageVersionFile ?: 'src/assets/page-version.json'
+    def lookupVersionFile = config.lookupVersionFile ?: 'src/assets/lookup-version.json'
+    def customComponentVersionFile = config.customComponentVersionFile ?: 'src/assets/custom-component-version.json'
     def skipValidation = config.skipValidation ?: false
     
     echo "S3 Bucket: ${s3Bucket}"
