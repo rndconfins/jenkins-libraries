@@ -147,18 +147,12 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
             }
         }
         
-        // Copy files to target directory
-        paths.each { path ->
-            def fileName = path.tokenize('/').last()
-            def cacheFile = "${versionCacheDir}\\${path}.json".replace('/', '\\')
-            def targetFile = "${targetDir}\\${fileName}.json".replace('/', '\\')
-            
-            if (fileExists(cacheFile)) {
-                bat "copy /Y \"${cacheFile}\" \"${targetFile}\" >nul 2>&1"
-                pageCount++
-            } else {
-                echo "  ✗ WARNING: File not found in cache: ${fileName}.json"
-            }
+        def foundFiles = paths.findAll { path -> fileExists("${versionCacheDir}\\${path}.json".replace('/', '\\')) }
+        (paths - foundFiles).each { path -> echo "  ✗ WARNING: File not found in cache: ${path.tokenize('/').last()}.json" }
+        if (foundFiles) {
+            def fileFilter = foundFiles.collect { it.tokenize('/').last() + '.json' }.join(' ')
+            bat "for /R \"${versionCacheDir}\" %f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%~nxf\"==\"%%n\" copy /Y \"%f\" \"${targetDir}\\%%n\" >nul 2>&1"
+            pageCount += foundFiles.size()
         }
     }
     echo "  Total page files: ${pageCount}"
@@ -200,16 +194,12 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
             }
         }
         
-        names.each { name ->
-            def cacheFile = "${versionCacheDir}\\${name}.json".replace('/', '\\')
-            def targetFile = "${targetDir}\\lookup\\${name}.json".replace('/', '\\')
-            
-            if (fileExists(cacheFile)) {
-                bat "copy /Y \"${cacheFile}\" \"${targetFile}\" >nul 2>&1"
-                lookupCount++
-            } else {
-                echo "  ✗ WARNING: File not found in cache: ${name}.json"
-            }
+        def foundNames = names.findAll { name -> fileExists("${versionCacheDir}\\${name}.json".replace('/', '\\')) }
+        (names - foundNames).each { name -> echo "  ✗ WARNING: File not found in cache: ${name}.json" }
+        if (foundNames) {
+            def fileFilter = foundNames.collect { it + '.json' }.join(' ')
+            bat "for /R \"${versionCacheDir}\" %f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%~nxf\"==\"%%n\" copy /Y \"%f\" \"${targetDir}\\lookup\\%%n\" >nul 2>&1"
+            lookupCount += foundNames.size()
         }
     }
     echo "  Total lookup files: ${lookupCount}"
@@ -251,16 +241,12 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
             }
         }
         
-        names.each { name ->
-            def cacheFile = "${versionCacheDir}\\${name}.json".replace('/', '\\')
-            def targetFile = "${targetDir}\\custom-component\\${name}.json".replace('/', '\\')
-            
-            if (fileExists(cacheFile)) {
-                bat "copy /Y \"${cacheFile}\" \"${targetFile}\" >nul 2>&1"
-                componentCount++
-            } else {
-                echo "  ✗ WARNING: File not found in cache: ${name}.json"
-            }
+        def foundNames = names.findAll { name -> fileExists("${versionCacheDir}\\${name}.json".replace('/', '\\')) }
+        (names - foundNames).each { name -> echo "  ✗ WARNING: File not found in cache: ${name}.json" }
+        if (foundNames) {
+            def fileFilter = foundNames.collect { it + '.json' }.join(' ')
+            bat "for /R \"${versionCacheDir}\" %f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%~nxf\"==\"%%n\" copy /Y \"%f\" \"${targetDir}\\custom-component\\%%n\" >nul 2>&1"
+            componentCount += foundNames.size()
         }
     }
     echo "  Total custom-component files: ${componentCount}"
@@ -292,16 +278,12 @@ def downloadFilesLinux(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile, l
             if (downloadStatus != 0) echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
         }
         
-        paths.each { path ->
-            def fileName = path.tokenize('/').last()
-            def cacheFile = "${versionCacheDir}/${path}.json"
-            def targetFile = "${targetDir}/${fileName}.json"
-            if (fileExists(cacheFile)) {
-                sh "cp ${cacheFile} ${targetFile}"
-                pageCount++
-            } else {
-                echo "  ✗ WARNING: File not found in cache: ${fileName}.json"
-            }
+        def foundFiles = paths.findAll { path -> fileExists("${versionCacheDir}/${path}.json") }
+        (paths - foundFiles).each { path -> echo "  ✗ WARNING: File not found in cache: ${path.tokenize('/').last()}.json" }
+        if (foundFiles) {
+            def cpArgs = foundFiles.collect { "'${versionCacheDir}/${it}.json'" }.join(' ')
+            sh "cp ${cpArgs} '${targetDir}/'"
+            pageCount += foundFiles.size()
         }
     }
     echo "  Total page files: ${pageCount}"
@@ -331,15 +313,12 @@ def downloadFilesLinux(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile, l
             if (downloadStatus != 0) echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
         }
         
-        names.each { name ->
-            def cacheFile = "${versionCacheDir}/${name}.json"
-            def targetFile = "${targetDir}/lookup/${name}.json"
-            if (fileExists(cacheFile)) {
-                sh "cp ${cacheFile} ${targetFile}"
-                lookupCount++
-            } else {
-                echo "  ✗ WARNING: File not found in cache: ${name}.json"
-            }
+        def foundNames = names.findAll { name -> fileExists("${versionCacheDir}/${name}.json") }
+        (names - foundNames).each { name -> echo "  ✗ WARNING: File not found in cache: ${name}.json" }
+        if (foundNames) {
+            def cpArgs = foundNames.collect { "'${versionCacheDir}/${it}.json'" }.join(' ')
+            sh "cp ${cpArgs} '${targetDir}/lookup/'"
+            lookupCount += foundNames.size()
         }
     }
     echo "  Total lookup files: ${lookupCount}"
@@ -369,15 +348,12 @@ def downloadFilesLinux(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile, l
             if (downloadStatus != 0) echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
         }
         
-        names.each { name ->
-            def cacheFile = "${versionCacheDir}/${name}.json"
-            def targetFile = "${targetDir}/custom-component/${name}.json"
-            if (fileExists(cacheFile)) {
-                sh "cp ${cacheFile} ${targetFile}"
-                componentCount++
-            } else {
-                echo "  ✗ WARNING: File not found in cache: ${name}.json"
-            }
+        def foundNames = names.findAll { name -> fileExists("${versionCacheDir}/${name}.json") }
+        (names - foundNames).each { name -> echo "  ✗ WARNING: File not found in cache: ${name}.json" }
+        if (foundNames) {
+            def cpArgs = foundNames.collect { "'${versionCacheDir}/${it}.json'" }.join(' ')
+            sh "cp ${cpArgs} '${targetDir}/custom-component/'"
+            componentCount += foundNames.size()
         }
     }
     echo "  Total custom-component files: ${componentCount}"
