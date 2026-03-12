@@ -151,7 +151,7 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
         (paths - foundFiles).each { path -> echo "  ✗ WARNING: File not found in cache: ${path.tokenize('/').last()}.json" }
         if (foundFiles) {
             def fileFilter = foundFiles.collect { it.tokenize('/').last() + '.json' }.join(' ')
-            bat "for /R \"${versionCacheDir}\" %f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%~nxf\"==\"%%n\" copy /Y \"%f\" \"${targetDir}\\%%n\" >nul 2>&1"
+            bat "for /R \"${versionCacheDir}\" %%f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%%~nxf\"==\"%%n\" copy /Y \"%%f\" \"${targetDir}\\%%n\" >nul 2>&1"
             pageCount += foundFiles.size()
         }
     }
@@ -198,7 +198,7 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
         (names - foundNames).each { name -> echo "  ✗ WARNING: File not found in cache: ${name}.json" }
         if (foundNames) {
             def fileFilter = foundNames.collect { it + '.json' }.join(' ')
-            bat "for /R \"${versionCacheDir}\" %f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%~nxf\"==\"%%n\" copy /Y \"%f\" \"${targetDir}\\lookup\\%%n\" >nul 2>&1"
+            bat "for /R \"${versionCacheDir}\" %%f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%%~nxf\"==\"%%n\" copy /Y \"%%f\" \"${targetDir}\\lookup\\%%n\" >nul 2>&1"
             lookupCount += foundNames.size()
         }
     }
@@ -245,7 +245,7 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
         (names - foundNames).each { name -> echo "  ✗ WARNING: File not found in cache: ${name}.json" }
         if (foundNames) {
             def fileFilter = foundNames.collect { it + '.json' }.join(' ')
-            bat "for /R \"${versionCacheDir}\" %f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%~nxf\"==\"%%n\" copy /Y \"%f\" \"${targetDir}\\custom-component\\%%n\" >nul 2>&1"
+            bat "for /R \"${versionCacheDir}\" %%f in (*.json) do @for %%n in (${fileFilter}) do @if /I \"%%~nxf\"==\"%%n\" copy /Y \"%%f\" \"${targetDir}\\custom-component\\%%n\" >nul 2>&1"
             componentCount += foundNames.size()
         }
     }
