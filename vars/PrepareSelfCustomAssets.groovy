@@ -112,28 +112,52 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
     def pageVersion = readJSON file: pageVersionFile
     bat "if not exist \"${targetDir}\" mkdir \"${targetDir}\""
     
-    def pageCount = 0
+    // Group files by version for batch download
+    def pagesByVersion = [:]
     pageVersion.each { path, version ->
-        def fileName = path.tokenize('/').last()
-        def cacheFile = "${cacheDir}\\page\\${version}\\${path}.json".replace('/', '\\')
-        def targetFile = "${targetDir}\\${fileName}.json".replace('/', '\\')
+        if (!pagesByVersion[version]) {
+            pagesByVersion[version] = []
+        }
+        pagesByVersion[version].add(path)
+    }
+    
+    def pageCount = 0
+    pagesByVersion.each { version, paths ->
+        def versionCacheDir = "${cacheDir}\\page\\${version}".replace('/', '\\')
+        def s3VersionPath = "${s3Bucket}/page/${version}/"
         
-        if (fileExists(cacheFile)) {
-            echo "  ✓ Using cached: ${fileName}.json"
-            bat "copy /Y \"${cacheFile}\" \"${targetFile}\""
-            pageCount++
-        } else {
-            def s3Path = "${s3Bucket}/page/${version}/${path}.json"
-            echo "  ↓ Downloading: ${fileName}.json"
-            def cacheFileDir = cacheFile.replaceAll('\\\\[^\\\\]+$', '')
-            bat "if not exist \"${cacheFileDir}\" mkdir \"${cacheFileDir}\""
+        // Check if we need to download this version
+        def needsDownload = false
+        paths.each { path ->
+            def fileName = path.tokenize('/').last()
+            def cacheFile = "${versionCacheDir}\\${path}.json".replace('/', '\\')
+            if (!fileExists(cacheFile)) {
+                needsDownload = true
+            }
+        }
+        
+        if (needsDownload) {
+            echo "  ↓ Downloading version ${version} from S3..."
+            bat "if not exist \"${versionCacheDir}\" mkdir \"${versionCacheDir}\""
             
-            def downloadStatus = bat(script: "${awsCmd} s3 cp ${s3Path} \"${cacheFile}\"", returnStatus: true)
-            if (downloadStatus == 0) {
-                bat "copy /Y \"${cacheFile}\" \"${targetFile}\""
+            // Download entire version folder recursively
+            def downloadStatus = bat(script: "${awsCmd} s3 sync ${s3VersionPath} \"${versionCacheDir}\" --exclude \"*\" --include \"*.json\"", returnStatus: true)
+            if (downloadStatus != 0) {
+                echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
+            }
+        }
+        
+        // Copy files to target directory
+        paths.each { path ->
+            def fileName = path.tokenize('/').last()
+            def cacheFile = "${versionCacheDir}\\${path}.json".replace('/', '\\')
+            def targetFile = "${targetDir}\\${fileName}.json".replace('/', '\\')
+            
+            if (fileExists(cacheFile)) {
+                bat "copy /Y \"${cacheFile}\" \"${targetFile}\" >nul 2>&1"
                 pageCount++
             } else {
-                echo "  ✗ WARNING: Failed to download ${s3Path}"
+                echo "  ✗ WARNING: File not found in cache: ${fileName}.json"
             }
         }
     }
@@ -144,27 +168,47 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
     def lookupVersion = readJSON file: lookupVersionFile
     bat "if not exist \"${targetDir}\\lookup\" mkdir \"${targetDir}\\lookup\""
     
-    def lookupCount = 0
+    // Group by version
+    def lookupsByVersion = [:]
     lookupVersion.each { name, version ->
-        def cacheFile = "${cacheDir}\\lookup\\${version}\\${name}.json".replace('/', '\\')
-        def targetFile = "${targetDir}\\lookup\\${name}.json".replace('/', '\\')
+        if (!lookupsByVersion[version]) {
+            lookupsByVersion[version] = []
+        }
+        lookupsByVersion[version].add(name)
+    }
+    
+    def lookupCount = 0
+    lookupsByVersion.each { version, names ->
+        def versionCacheDir = "${cacheDir}\\lookup\\${version}".replace('/', '\\')
+        def s3VersionPath = "${s3Bucket}/lookup/${version}/"
         
-        if (fileExists(cacheFile)) {
-            echo "  ✓ Using cached: ${name}.json"
-            bat "copy /Y \"${cacheFile}\" \"${targetFile}\""
-            lookupCount++
-        } else {
-            def s3Path = "${s3Bucket}/lookup/${version}/${name}.json"
-            echo "  ↓ Downloading: ${name}.json"
-            def cacheFileDir = "${cacheDir}\\lookup\\${version}".replace('/', '\\')
-            bat "if not exist \"${cacheFileDir}\" mkdir \"${cacheFileDir}\""
+        def needsDownload = false
+        names.each { name ->
+            def cacheFile = "${versionCacheDir}\\${name}.json".replace('/', '\\')
+            if (!fileExists(cacheFile)) {
+                needsDownload = true
+            }
+        }
+        
+        if (needsDownload) {
+            echo "  ↓ Downloading lookup version ${version} from S3..."
+            bat "if not exist \"${versionCacheDir}\" mkdir \"${versionCacheDir}\""
             
-            def downloadStatus = bat(script: "${awsCmd} s3 cp ${s3Path} \"${cacheFile}\"", returnStatus: true)
-            if (downloadStatus == 0) {
-                bat "copy /Y \"${cacheFile}\" \"${targetFile}\""
+            def downloadStatus = bat(script: "${awsCmd} s3 sync ${s3VersionPath} \"${versionCacheDir}\" --exclude \"*\" --include \"*.json\"", returnStatus: true)
+            if (downloadStatus != 0) {
+                echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
+            }
+        }
+        
+        names.each { name ->
+            def cacheFile = "${versionCacheDir}\\${name}.json".replace('/', '\\')
+            def targetFile = "${targetDir}\\lookup\\${name}.json".replace('/', '\\')
+            
+            if (fileExists(cacheFile)) {
+                bat "copy /Y \"${cacheFile}\" \"${targetFile}\" >nul 2>&1"
                 lookupCount++
             } else {
-                echo "  ✗ WARNING: Failed to download ${s3Path}"
+                echo "  ✗ WARNING: File not found in cache: ${name}.json"
             }
         }
     }
@@ -175,27 +219,47 @@ def downloadFilesWindows(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile,
     def customComponentVersion = readJSON file: customComponentVersionFile
     bat "if not exist \"${targetDir}\\custom-component\" mkdir \"${targetDir}\\custom-component\""
     
-    def componentCount = 0
+    // Group by version
+    def componentsByVersion = [:]
     customComponentVersion.each { name, version ->
-        def cacheFile = "${cacheDir}\\custom-component\\${version}\\${name}.json".replace('/', '\\')
-        def targetFile = "${targetDir}\\custom-component\\${name}.json".replace('/', '\\')
+        if (!componentsByVersion[version]) {
+            componentsByVersion[version] = []
+        }
+        componentsByVersion[version].add(name)
+    }
+    
+    def componentCount = 0
+    componentsByVersion.each { version, names ->
+        def versionCacheDir = "${cacheDir}\\custom-component\\${version}".replace('/', '\\')
+        def s3VersionPath = "${s3Bucket}/custom-component/${version}/"
         
-        if (fileExists(cacheFile)) {
-            echo "  ✓ Using cached: ${name}.json"
-            bat "copy /Y \"${cacheFile}\" \"${targetFile}\""
-            componentCount++
-        } else {
-            def s3Path = "${s3Bucket}/custom-component/${version}/${name}.json"
-            echo "  ↓ Downloading: ${name}.json"
-            def cacheFileDir = "${cacheDir}\\custom-component\\${version}".replace('/', '\\')
-            bat "if not exist \"${cacheFileDir}\" mkdir \"${cacheFileDir}\""
+        def needsDownload = false
+        names.each { name ->
+            def cacheFile = "${versionCacheDir}\\${name}.json".replace('/', '\\')
+            if (!fileExists(cacheFile)) {
+                needsDownload = true
+            }
+        }
+        
+        if (needsDownload) {
+            echo "  ↓ Downloading custom-component version ${version} from S3..."
+            bat "if not exist \"${versionCacheDir}\" mkdir \"${versionCacheDir}\""
             
-            def downloadStatus = bat(script: "${awsCmd} s3 cp ${s3Path} \"${cacheFile}\"", returnStatus: true)
-            if (downloadStatus == 0) {
-                bat "copy /Y \"${cacheFile}\" \"${targetFile}\""
+            def downloadStatus = bat(script: "${awsCmd} s3 sync ${s3VersionPath} \"${versionCacheDir}\" --exclude \"*\" --include \"*.json\"", returnStatus: true)
+            if (downloadStatus != 0) {
+                echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
+            }
+        }
+        
+        names.each { name ->
+            def cacheFile = "${versionCacheDir}\\${name}.json".replace('/', '\\')
+            def targetFile = "${targetDir}\\custom-component\\${name}.json".replace('/', '\\')
+            
+            if (fileExists(cacheFile)) {
+                bat "copy /Y \"${cacheFile}\" \"${targetFile}\" >nul 2>&1"
                 componentCount++
             } else {
-                echo "  ✗ WARNING: Failed to download ${s3Path}"
+                echo "  ✗ WARNING: File not found in cache: ${name}.json"
             }
         }
     }
@@ -208,28 +272,35 @@ def downloadFilesLinux(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile, l
     def pageVersion = readJSON file: pageVersionFile
     sh "mkdir -p ${targetDir}"
     
-    def pageCount = 0
+    def pagesByVersion = [:]
     pageVersion.each { path, version ->
-        def fileName = path.tokenize('/').last()
-        def cacheFile = "${cacheDir}/page/${version}/${path}.json"
-        def targetFile = "${targetDir}/${fileName}.json"
+        if (!pagesByVersion[version]) pagesByVersion[version] = []
+        pagesByVersion[version].add(path)
+    }
+    
+    def pageCount = 0
+    pagesByVersion.each { version, paths ->
+        def versionCacheDir = "${cacheDir}/page/${version}"
+        def s3VersionPath = "${s3Bucket}/page/${version}/"
         
-        if (fileExists(cacheFile)) {
-            echo "  ✓ Using cached: ${fileName}.json"
-            sh "cp ${cacheFile} ${targetFile}"
-            pageCount++
-        } else {
-            def s3Path = "${s3Bucket}/page/${version}/${path}.json"
-            echo "  ↓ Downloading: ${fileName}.json"
-            def cacheFileDir = cacheFile.replaceAll('/[^/]+$', '')
-            sh "mkdir -p ${cacheFileDir}"
-            
-            def downloadStatus = sh(script: "${awsCmd} s3 cp ${s3Path} ${cacheFile}", returnStatus: true)
-            if (downloadStatus == 0) {
+        def needsDownload = paths.any { path -> !fileExists("${versionCacheDir}/${path}.json") }
+        
+        if (needsDownload) {
+            echo "  ↓ Downloading version ${version} from S3..."
+            sh "mkdir -p ${versionCacheDir}"
+            def downloadStatus = sh(script: "${awsCmd} s3 sync ${s3VersionPath} ${versionCacheDir} --exclude '*' --include '*.json'", returnStatus: true)
+            if (downloadStatus != 0) echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
+        }
+        
+        paths.each { path ->
+            def fileName = path.tokenize('/').last()
+            def cacheFile = "${versionCacheDir}/${path}.json"
+            def targetFile = "${targetDir}/${fileName}.json"
+            if (fileExists(cacheFile)) {
                 sh "cp ${cacheFile} ${targetFile}"
                 pageCount++
             } else {
-                echo "  ✗ WARNING: Failed to download ${s3Path}"
+                echo "  ✗ WARNING: File not found in cache: ${fileName}.json"
             }
         }
     }
@@ -240,27 +311,34 @@ def downloadFilesLinux(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile, l
     def lookupVersion = readJSON file: lookupVersionFile
     sh "mkdir -p ${targetDir}/lookup"
     
-    def lookupCount = 0
+    def lookupsByVersion = [:]
     lookupVersion.each { name, version ->
-        def cacheFile = "${cacheDir}/lookup/${version}/${name}.json"
-        def targetFile = "${targetDir}/lookup/${name}.json"
+        if (!lookupsByVersion[version]) lookupsByVersion[version] = []
+        lookupsByVersion[version].add(name)
+    }
+    
+    def lookupCount = 0
+    lookupsByVersion.each { version, names ->
+        def versionCacheDir = "${cacheDir}/lookup/${version}"
+        def s3VersionPath = "${s3Bucket}/lookup/${version}/"
         
-        if (fileExists(cacheFile)) {
-            echo "  ✓ Using cached: ${name}.json"
-            sh "cp ${cacheFile} ${targetFile}"
-            lookupCount++
-        } else {
-            def s3Path = "${s3Bucket}/lookup/${version}/${name}.json"
-            echo "  ↓ Downloading: ${name}.json"
-            def cacheFileDir = "${cacheDir}/lookup/${version}"
-            sh "mkdir -p ${cacheFileDir}"
-            
-            def downloadStatus = sh(script: "${awsCmd} s3 cp ${s3Path} ${cacheFile}", returnStatus: true)
-            if (downloadStatus == 0) {
+        def needsDownload = names.any { name -> !fileExists("${versionCacheDir}/${name}.json") }
+        
+        if (needsDownload) {
+            echo "  ↓ Downloading lookup version ${version} from S3..."
+            sh "mkdir -p ${versionCacheDir}"
+            def downloadStatus = sh(script: "${awsCmd} s3 sync ${s3VersionPath} ${versionCacheDir} --exclude '*' --include '*.json'", returnStatus: true)
+            if (downloadStatus != 0) echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
+        }
+        
+        names.each { name ->
+            def cacheFile = "${versionCacheDir}/${name}.json"
+            def targetFile = "${targetDir}/lookup/${name}.json"
+            if (fileExists(cacheFile)) {
                 sh "cp ${cacheFile} ${targetFile}"
                 lookupCount++
             } else {
-                echo "  ✗ WARNING: Failed to download ${s3Path}"
+                echo "  ✗ WARNING: File not found in cache: ${name}.json"
             }
         }
     }
@@ -271,27 +349,34 @@ def downloadFilesLinux(awsCmd, s3Bucket, targetDir, cacheDir, pageVersionFile, l
     def customComponentVersion = readJSON file: customComponentVersionFile
     sh "mkdir -p ${targetDir}/custom-component"
     
-    def componentCount = 0
+    def componentsByVersion = [:]
     customComponentVersion.each { name, version ->
-        def cacheFile = "${cacheDir}/custom-component/${version}/${name}.json"
-        def targetFile = "${targetDir}/custom-component/${name}.json"
+        if (!componentsByVersion[version]) componentsByVersion[version] = []
+        componentsByVersion[version].add(name)
+    }
+    
+    def componentCount = 0
+    componentsByVersion.each { version, names ->
+        def versionCacheDir = "${cacheDir}/custom-component/${version}"
+        def s3VersionPath = "${s3Bucket}/custom-component/${version}/"
         
-        if (fileExists(cacheFile)) {
-            echo "  ✓ Using cached: ${name}.json"
-            sh "cp ${cacheFile} ${targetFile}"
-            componentCount++
-        } else {
-            def s3Path = "${s3Bucket}/custom-component/${version}/${name}.json"
-            echo "  ↓ Downloading: ${name}.json"
-            def cacheFileDir = "${cacheDir}/custom-component/${version}"
-            sh "mkdir -p ${cacheFileDir}"
-            
-            def downloadStatus = sh(script: "${awsCmd} s3 cp ${s3Path} ${cacheFile}", returnStatus: true)
-            if (downloadStatus == 0) {
+        def needsDownload = names.any { name -> !fileExists("${versionCacheDir}/${name}.json") }
+        
+        if (needsDownload) {
+            echo "  ↓ Downloading custom-component version ${version} from S3..."
+            sh "mkdir -p ${versionCacheDir}"
+            def downloadStatus = sh(script: "${awsCmd} s3 sync ${s3VersionPath} ${versionCacheDir} --exclude '*' --include '*.json'", returnStatus: true)
+            if (downloadStatus != 0) echo "  ✗ WARNING: Failed to sync ${s3VersionPath}"
+        }
+        
+        names.each { name ->
+            def cacheFile = "${versionCacheDir}/${name}.json"
+            def targetFile = "${targetDir}/custom-component/${name}.json"
+            if (fileExists(cacheFile)) {
                 sh "cp ${cacheFile} ${targetFile}"
                 componentCount++
             } else {
-                echo "  ✗ WARNING: Failed to download ${s3Path}"
+                echo "  ✗ WARNING: File not found in cache: ${name}.json"
             }
         }
     }
