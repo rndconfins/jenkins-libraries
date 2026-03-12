@@ -1,4 +1,4 @@
-def call(Map config) {
+def call(Map config = [:]) {
     // Required parameters
     def s3Bucket = config.s3Bucket
     def credentialsId = config.credentialsId
