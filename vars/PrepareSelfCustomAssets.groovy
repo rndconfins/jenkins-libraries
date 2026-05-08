@@ -19,6 +19,15 @@ def call(Map config = [:]) {
     def lookupVersionFile = config.lookupVersionFile ?: 'src/assets/lookup-version.json'
     def customComponentVersionFile = config.customComponentVersionFile ?: 'src/assets/custom-component-version.json'
     def skipValidation = config.skipValidation ?: false
+
+    // Check if required version files exist
+    if (!fileExists(pageVersionFile) && !fileExists(lookupVersionFile) && !fileExists(customComponentVersionFile)) {
+        echo "Skipping execution: some version files not found"
+        echo "  page-version.json: ${fileExists(pageVersionFile) ? '✓' : '✗'}"
+        echo "  lookup-version.json: ${fileExists(lookupVersionFile) ? '✓' : '✗'}"
+        echo "  custom-component-version.json: ${fileExists(customComponentVersionFile) ? '✓' : '✗'}"
+        return
+    }
     
     echo "S3 Bucket: ${s3Bucket}"
     echo "Cache Directory: ${cacheDir}"
