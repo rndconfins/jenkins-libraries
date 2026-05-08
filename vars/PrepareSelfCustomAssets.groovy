@@ -23,9 +23,9 @@ def call(Map config = [:]) {
     // Check if required version files exist
     if (!fileExists(pageVersionFile) && !fileExists(lookupVersionFile) && !fileExists(customComponentVersionFile)) {
         echo "Skipping execution: some version files not found"
-        echo "  page-version.json: ${fileExists(pageVersionFile) ? '✓' : '✗'}"
-        echo "  lookup-version.json: ${fileExists(lookupVersionFile) ? '✓' : '✗'}"
-        echo "  custom-component-version.json: ${fileExists(customComponentVersionFile) ? '✓' : '✗'}"
+        echo "  page-version.json: ${fileExists(pageVersionFile) ? '[V] exists' : '[X] not exists'}"
+        echo "  lookup-version.json: ${fileExists(lookupVersionFile) ? '[V] exists' : '[X] not exists'}"
+        echo "  custom-component-version.json: ${fileExists(customComponentVersionFile) ? '[V] exists' : '[X] not exists'}"
         return
     }
     
