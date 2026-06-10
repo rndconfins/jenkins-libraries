@@ -8,7 +8,7 @@
         registryURL   : Container Registry endpoint URL
         imageName     : Docker image name to push to container registry
         regionId      : (AWS CLI) AWS Region ID
-        BranchName : Versi Git Branch 
+        branchName : Versi Git Branch 
 
     credentialsId :
         Alibaba Cloud : username&password
@@ -21,7 +21,7 @@ def call(Map config = [:]) {
     
     if (config.cloudType == "Alibaba Cloud") {
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
-            dockerImageRemote = docker.build("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+            dockerImageRemote = docker.build("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
             dockerImageRemote.push()
             dockerImageRemote.push("latest")
         }
@@ -29,14 +29,14 @@ def call(Map config = [:]) {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login -u _json_key --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.build("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+        dockerImageRemote = docker.build("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("latest")
     } else if (config.cloudType == "AWS") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login --username AWS --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.build("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+        dockerImageRemote = docker.build("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("latest")
     } else if (config.cloudType == "AWS CLI") {
@@ -59,14 +59,14 @@ def call(Map config = [:]) {
             //    echo "Warning: ECR describe/create repository failed, continuing..."
             //}
         }
-        dockerImageRemote = docker.build("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+        dockerImageRemote = docker.build("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
         dockerImageRemote.push()
         dockerImageRemote.push("latest")
     } else if (config.cloudType == "Azure") {
         echo "1"
         docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
             echo "2"
-            dockerImageRemote = docker.build("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+            dockerImageRemote = docker.build("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
             echo "3"
             dockerImageRemote.push()
             echo "4"
@@ -75,7 +75,7 @@ def call(Map config = [:]) {
         }
     }
     else if (config.cloudType == "Local Registry") {
-            dockerImageRemote = docker.build("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+            dockerImageRemote = docker.build("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
             dockerImageRemote.push()
             dockerImageRemote.push("latest")
     }
@@ -111,7 +111,7 @@ def call(Map config = [:]) {
           dockerImageRemote.push("latest")
         }
         else {
-          dockerImageRemote = docker.build ("${config.imageName}:${config.BranchName}", "--build-arg baseHref=${config.baseHref} .")
+          dockerImageRemote = docker.build ("${config.imageName}:${config.branchName}", "--build-arg baseHref=${config.baseHref} .")
           dockerImageRemote.push()
           dockerImageRemote.push("latest")
         }
