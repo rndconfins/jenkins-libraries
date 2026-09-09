@@ -44,7 +44,16 @@ def call(Map config = [:]) {
         }
         //dockerImageRemote = docker.image("${config.imageName}").pull()
     } else if (config.cloudType == "Azure") {
-        echo "Azure Provider is under maintenance or unavailable"
+        echo "1"
+        docker.withRegistry("${config.registryURL}", "${config.credentialsId}") {
+            echo "2"
+            dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
+            echo "3"
+            dockerImageRemote.push()
+            echo "4"
+            dockerImageRemote.push("cloud")
+            echo "5"
+        }
     }
     else if (config.cloudType == "Local Registry") {
             dockerImageRemote = docker.image("${config.imageName}").pull() 
