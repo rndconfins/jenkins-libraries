@@ -64,11 +64,11 @@ def call(Map config = [:]) {
             ])
         
             writeFile file: 'image-description.json', text: payload
-        
+
             // Update Artifact Registry description
             sh """
                 curl --fail-with-body -X PATCH \
-                    -H "Authorization: Bearer \\$(gcloud auth print-access-token)" \
+                    -H "Authorization: Bearer \$(gcloud auth print-access-token)" \
                     -H "Content-Type: application/json" \
                     "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/${imageDigest}?updateMask=description" \
                     -d @image-description.json
