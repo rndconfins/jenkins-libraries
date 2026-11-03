@@ -44,9 +44,11 @@ def call(Map config = [:]) {
         
             // Prepare description
             def payload = groovy.json.JsonOutput.toJson([
-                description: config.description
+                annotations: [
+                    description: config.description
+                ]
             ])
-        
+                    
             writeFile file: 'image-description.json', text: payload
         
             withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
@@ -83,7 +85,7 @@ def call(Map config = [:]) {
                     curl --show-error -X PATCH \
                         -H "Authorization: Bearer \$ACCESS_TOKEN" \
                         -H "Content-Type: application/json" \
-                        "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/\${IMAGE_DIGEST}?updateMask=description" \
+                        "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/\${IMAGE_DIGEST}?updateMask=annotations" \
                         -d @image-description.json
                     
                     unset ACCESS_TOKEN
