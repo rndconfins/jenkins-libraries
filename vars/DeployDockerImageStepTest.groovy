@@ -74,7 +74,7 @@ def call(Map config = [:]) {
                     fi
         
                     echo "Image digest: \$IMAGE_DIGEST"
-                    
+                    cat image-description.json
                     # Disable shell command tracing before generating the token
                     set +x
                     
