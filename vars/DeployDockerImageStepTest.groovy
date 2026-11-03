@@ -75,12 +75,18 @@ def call(Map config = [:]) {
         
                     echo "Image digest: \$IMAGE_DIGEST"
                     
-                    # Update Artifact Registry description
-                    curl --fail-with-body -X PATCH \
-                        -H "Authorization: Bearer \$(gcloud auth print-access-token)" \
+                    # Disable shell command tracing before generating the token
+                    set +x
+                    
+                    ACCESS_TOKEN=$(gcloud auth print-access-token)
+                    
+                    curl --fail --show-error -X PATCH \
+                        -H "Authorization: Bearer ${ACCESS_TOKEN}" \
                         -H "Content-Type: application/json" \
-                        "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/\${IMAGE_DIGEST}?updateMask=description" \
+                        "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/${IMAGE_DIGEST}?updateMask=description" \
                         -d @image-description.json
+                    
+                    unset ACCESS_TOKEN
         
                     echo "Artifact Registry description updated."
         
