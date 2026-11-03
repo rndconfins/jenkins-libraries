@@ -30,7 +30,7 @@ def call(Map config = [:]) {
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
         if (config.description?.trim()) {
-    
+
             def imageParts = config.imageName.split('/')
         
             if (imageParts.size() != 4) {
@@ -42,39 +42,52 @@ def call(Map config = [:]) {
             def repository = imageParts[2]
             def imagePackage = imageParts[3]
         
-            // Get image digest
-            def imageDigest = sh(
-                script: """
-                    gcloud artifacts docker images list ${config.imageName} \
-                        --include-tags \
-                        --filter="tags:build-${env.BUILD_ID}" \
-                        --limit=1 \
-                        --format="value(digest)"
-                """,
-                returnStdout: true
-            ).trim()
-        
-            if (!imageDigest) {
-                error("Unable to retrieve image digest from Artifact Registry")
-            }
-        
             // Prepare description
             def payload = groovy.json.JsonOutput.toJson([
                 description: config.description
             ])
         
             writeFile file: 'image-description.json', text: payload
-
-            // Update Artifact Registry description
-            sh """
-                curl --fail-with-body -X PATCH \
-                    -H "Authorization: Bearer \$(gcloud auth print-access-token)" \
-                    -H "Content-Type: application/json" \
-                    "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/${imageDigest}?updateMask=description" \
-                    -d @image-description.json
-            """
         
-            echo "Artifact Registry description updated."
+            withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
+        
+                sh """
+                    set -e
+        
+                    # Authenticate using service account
+                    gcloud auth activate-service-account --key-file="\$FILE"
+        
+                    # Logout when shell exits, including on failure
+                    trap 'gcloud auth revoke --all --quiet || true' EXIT
+        
+                    # Set project
+                    gcloud config set project ${projectId}
+        
+                    # Get image digest
+                    IMAGE_DIGEST=\$(gcloud artifacts docker images list \
+                        ${config.imageName} \
+                        --include-tags \
+                        --filter="tags:build-${env.BUILD_ID}" \
+                        --limit=1 \
+                        --format="value(digest)")
+        
+                    if [ -z "\$IMAGE_DIGEST" ]; then
+                        echo "ERROR: Unable to retrieve image digest from Artifact Registry"
+                        exit 1
+                    fi
+        
+                    echo "Image digest: \$IMAGE_DIGEST"
+        
+                    # Update Artifact Registry description
+                    curl --fail-with-body -X PATCH \
+                        -H "Authorization: Bearer \$(gcloud auth print-access-token)" \
+                        -H "Content-Type: application/json" \
+                        "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/\${IMAGE_DIGEST}?updateMask=description" \
+                        -d @image-description.json
+        
+                    echo "Artifact Registry description updated."
+                """
+            }
         
         } else {
             echo "Description is empty. Skipping Artifact Registry description update."
