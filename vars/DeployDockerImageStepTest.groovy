@@ -64,7 +64,7 @@ def call(Map config = [:]) {
                     IMAGE_DIGEST=\$(gcloud artifacts docker images list \
                         ${config.imageName} \
                         --include-tags \
-                        --format="value(digest)")
+                        --format="value(version)")
         
                     if [ -z "\$IMAGE_DIGEST" ]; then
                         echo "ERROR: Unable to retrieve image digest from Artifact Registry"
