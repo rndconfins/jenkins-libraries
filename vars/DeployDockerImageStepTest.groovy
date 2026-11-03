@@ -29,6 +29,56 @@ def call(Map config = [:]) {
         dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
+        if (config.description?.trim()) {
+    
+            def imageParts = config.imageName.split('/')
+        
+            if (imageParts.size() != 4) {
+                error("Invalid DOCKER_IMAGE_NAME: ${config.imageName}")
+            }
+        
+            def projectId = imageParts[1]
+            def location = imageParts[0].replace('-docker.pkg.dev', '')
+            def repository = imageParts[2]
+            def imagePackage = imageParts[3]
+        
+            // Get image digest
+            def imageDigest = sh(
+                script: """
+                    gcloud artifacts docker images list ${config.imageName} \
+                        --include-tags \
+                        --filter="tags:build-${env.BUILD_ID}" \
+                        --limit=1 \
+                        --format="value(digest)"
+                """,
+                returnStdout: true
+            ).trim()
+        
+            if (!imageDigest) {
+                error("Unable to retrieve image digest from Artifact Registry")
+            }
+        
+            // Prepare description
+            def payload = groovy.json.JsonOutput.toJson([
+                description: config.description
+            ])
+        
+            writeFile file: 'image-description.json', text: payload
+        
+            // Update Artifact Registry description
+            sh """
+                curl --fail-with-body -X PATCH \
+                    -H "Authorization: Bearer \\$(gcloud auth print-access-token)" \
+                    -H "Content-Type: application/json" \
+                    "https://artifactregistry.googleapis.com/v1/projects/${projectId}/locations/${location}/repositories/${repository}/packages/${imagePackage}/versions/${imageDigest}?updateMask=description" \
+                    -d @image-description.json
+            """
+        
+            echo "Artifact Registry description updated."
+        
+        } else {
+            echo "Description is empty. Skipping Artifact Registry description update."
+        }
     } else if (config.cloudType == "AWS") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login --username AWS --password-stdin ${config.registryURL}"
