@@ -64,6 +64,8 @@ def call(Map config = [:]) {
                     IMAGE_DIGEST=\$(gcloud artifacts docker images list \
                         ${config.imageName} \
                         --include-tags \
+                        --filter="tags:build-${env.BUILD_ID}" \
+                        --limit=1 \
                         --format="value(version)")
         
                     if [ -z "\$IMAGE_DIGEST" ]; then
