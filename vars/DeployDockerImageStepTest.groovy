@@ -57,9 +57,6 @@ def call(Map config = [:]) {
                     # Authenticate using service account
                     gcloud auth activate-service-account --key-file="\$FILE"
         
-                    # Logout when shell exits, including on failure
-                    trap 'gcloud auth revoke --all --quiet || true' EXIT
-        
                     # Set project
                     gcloud config set project ${projectId}
         
