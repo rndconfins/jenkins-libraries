@@ -33,7 +33,8 @@ def call(Map config = [:]) {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login -u _json_key --password-stdin ${config.registryURL}"
         }
-        dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
+        //dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
+        dockerImageRemote = docker.build "${config.imageName}:build-${env.BUILD_ID}"
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
         if (config.customTag?.trim()) {
