@@ -17,6 +17,7 @@
         AWS CLI : username&password
 */
 def call(Map config = [:]) {
+    def arr = "${config.customTag}".split(";")
     if (!config.customTag) {
         error "customTag parameter is required for DeployDockerImageStepCustomTag"
     }
@@ -35,6 +36,12 @@ def call(Map config = [:]) {
         dockerImageRemote = docker.build("${config.imageName}:${config.customTag}", buildArgs)
         dockerImageRemote.push()
         dockerImageRemote.push("cloud")
+        if (config.customTag?.trim()) {
+            arr.each{ element ->
+                    //dockerImageRemote = docker.image("${config.imageName}").push("${element}")
+                    dockerImageRemote.push("${element}")
+                }
+        }
     } else if (config.cloudType == "AWS") {
         withCredentials([file(credentialsId: "${config.credentialsId}", variable: 'FILE')]) {
             sh "cat $FILE | docker login --username AWS --password-stdin ${config.registryURL}"
